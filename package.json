@@ -1,0 +1,8 @@
+{
+  "name": "visua-investigation-studio",
+  "version": "2.0.0",
+  "private": true,
+  "description": "300 offline dynamic visualization presets built from 30 visual grammars and 10 investigation contexts",
+  "scripts": {"test": "node --test", "check": "node --check assets/catalogue.js && node --check assets/data.js && node --check assets/engine.js && node --check assets/export.js && node --check assets/app.js"},
+  "engines": {"node": ">=20"}
+}

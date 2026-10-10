@@ -1,0 +1,1813 @@
+{
+  "version": 1,
+  "source": "Dữ liệu mô phỏng tái lập",
+  "synthetic": true,
+  "scenario": "funds",
+  "seed": 104729,
+  "unit": "đơn vị giá trị",
+  "coordinateSystem": "schematic-2d",
+  "nodes": [
+    {
+      "id": "A0001",
+      "label": "Tác tử 1",
+      "group": 0,
+      "stage": 0,
+      "value": 812,
+      "score": 21,
+      "x": 59.454,
+      "y": 11.969,
+      "start": 26,
+      "end": 83
+    },
+    {
+      "id": "A0002",
+      "label": "Tác tử 2",
+      "group": 1,
+      "stage": 5,
+      "value": 220,
+      "score": 64,
+      "x": 50.619,
+      "y": 14.393,
+      "start": 0,
+      "end": 69
+    },
+    {
+      "id": "A0003",
+      "label": "Tác tử 3",
+      "group": 2,
+      "stage": 1,
+      "value": 435,
+      "score": 52,
+      "x": 22.544,
+      "y": 19.794,
+      "start": 15,
+      "end": 78
+    },
+    {
+      "id": "A0004",
+      "label": "Tác tử 4",
+      "group": 3,
+      "stage": 5,
+      "value": 694,
+      "score": 58,
+      "x": 88.915,
+      "y": 43.389,
+      "start": 4,
+      "end": 89
+    },
+    {
+      "id": "A0005",
+      "label": "Tác tử 5",
+      "group": 4,
+      "stage": 2,
+      "value": 354,
+      "score": 71,
+      "x": 57.238,
+      "y": 83.518,
+      "start": 21,
+      "end": 98
+    },
+    {
+      "id": "A0006",
+      "label": "Tác tử 6",
+      "group": 5,
+      "stage": 1,
+      "value": 780,
+      "score": 68,
+      "x": 19.9,
+      "y": 65.615,
+      "start": 37,
+      "end": 86
+    },
+    {
+      "id": "A0007",
+      "label": "Tác tử 7",
+      "group": 0,
+      "stage": 2,
+      "value": 390,
+      "score": 19,
+      "x": 89.547,
+      "y": 46.46,
+      "start": 0,
+      "end": 100
+    },
+    {
+      "id": "A0008",
+      "label": "Tác tử 8",
+      "group": 1,
+      "stage": 3,
+      "value": 18,
+      "score": 46,
+      "x": 87.284,
+      "y": 33.408,
+      "start": 10,
+      "end": 95
+    },
+    {
+      "id": "A0009",
+      "label": "Tác tử 9",
+      "group": 2,
+      "stage": 2,
+      "value": 296,
+      "score": 2,
+      "x": 34.119,
+      "y": 80.84,
+      "start": 12,
+      "end": 96
+    },
+    {
+      "id": "A0010",
+      "label": "Tác tử 10",
+      "group": 3,
+      "stage": 4,
+      "value": 273,
+      "score": 77,
+      "x": 43.443,
+      "y": 45.017,
+      "start": 44,
+      "end": 90
+    },
+    {
+      "id": "A0011",
+      "label": "Tác tử 11",
+      "group": 4,
+      "stage": 3,
+      "value": 380,
+      "score": 69,
+      "x": 57.735,
+      "y": 85.796,
+      "start": 29,
+      "end": 82
+    },
+    {
+      "id": "A0012",
+      "label": "Tác tử 12",
+      "group": 5,
+      "stage": 0,
+      "value": 940,
+      "score": 72,
+      "x": 80.913,
+      "y": 76.285,
+      "start": 24,
+      "end": 95
+    },
+    {
+      "id": "A0013",
+      "label": "Tác tử 13",
+      "group": 0,
+      "stage": 1,
+      "value": 128,
+      "score": 85,
+      "x": 86.681,
+      "y": 43.058,
+      "start": 10,
+      "end": 91
+    },
+    {
+      "id": "A0014",
+      "label": "Tác tử 14",
+      "group": 1,
+      "stage": 3,
+      "value": 984,
+      "score": 64,
+      "x": 73.474,
+      "y": 53.599,
+      "start": 3,
+      "end": 96
+    },
+    {
+      "id": "A0015",
+      "label": "Tác tử 15",
+      "group": 2,
+      "stage": 0,
+      "value": 798,
+      "score": 33,
+      "x": 45.428,
+      "y": 85.27,
+      "start": 23,
+      "end": 93
+    },
+    {
+      "id": "A0016",
+      "label": "Tác tử 16",
+      "group": 3,
+      "stage": 3,
+      "value": 846,
+      "score": 65,
+      "x": 77.886,
+      "y": 74.757,
+      "start": 1,
+      "end": 97
+    },
+    {
+      "id": "A0017",
+      "label": "Tác tử 17",
+      "group": 4,
+      "stage": 3,
+      "value": 57,
+      "score": 15,
+      "x": 51.033,
+      "y": 87.737,
+      "start": 36,
+      "end": 90
+    },
+    {
+      "id": "A0018",
+      "label": "Tác tử 18",
+      "group": 5,
+      "stage": 4,
+      "value": 789,
+      "score": 52,
+      "x": 10.09,
+      "y": 36.319,
+      "start": 22,
+      "end": 89
+    },
+    {
+      "id": "A0019",
+      "label": "Tác tử 19",
+      "group": 0,
+      "stage": 1,
+      "value": 350,
+      "score": 18,
+      "x": 77.846,
+      "y": 25.789,
+      "start": 37,
+      "end": 82
+    },
+    {
+      "id": "A0020",
+      "label": "Tác tử 20",
+      "group": 1,
+      "stage": 1,
+      "value": 114,
+      "score": 48,
+      "x": 19.636,
+      "y": 73.055,
+      "start": 0,
+      "end": 67
+    },
+    {
+      "id": "A0021",
+      "label": "Tác tử 21",
+      "group": 2,
+      "stage": 1,
+      "value": 245,
+      "score": 88,
+      "x": 45.719,
+      "y": 50.299,
+      "start": 1,
+      "end": 72
+    },
+    {
+      "id": "A0022",
+      "label": "Tác tử 22",
+      "group": 3,
+      "stage": 0,
+      "value": 544,
+      "score": 8,
+      "x": 68.956,
+      "y": 38.901,
+      "start": 37,
+      "end": 75
+    },
+    {
+      "id": "A0023",
+      "label": "Tác tử 23",
+      "group": 4,
+      "stage": 2,
+      "value": 511,
+      "score": 43,
+      "x": 71.787,
+      "y": 67.554,
+      "start": 15,
+      "end": 70
+    },
+    {
+      "id": "A0024",
+      "label": "Tác tử 24",
+      "group": 5,
+      "stage": 0,
+      "value": 200,
+      "score": 36,
+      "x": 57.846,
+      "y": 49.33,
+      "start": 39,
+      "end": 87
+    },
+    {
+      "id": "A0025",
+      "label": "Tác tử 25",
+      "group": 0,
+      "stage": 3,
+      "value": 374,
+      "score": 4,
+      "x": 16.869,
+      "y": 23.787,
+      "start": 40,
+      "end": 97
+    },
+    {
+      "id": "A0026",
+      "label": "Tác tử 26",
+      "group": 1,
+      "stage": 3,
+      "value": 947,
+      "score": 49,
+      "x": 84.398,
+      "y": 57.599,
+      "start": 39,
+      "end": 87
+    },
+    {
+      "id": "A0027",
+      "label": "Tác tử 27",
+      "group": 2,
+      "stage": 5,
+      "value": 578,
+      "score": 31,
+      "x": 50.156,
+      "y": 11.784,
+      "start": 38,
+      "end": 88
+    },
+    {
+      "id": "A0028",
+      "label": "Tác tử 28",
+      "group": 3,
+      "stage": 4,
+      "value": 496,
+      "score": 43,
+      "x": 46.781,
+      "y": 75.615,
+      "start": 10,
+      "end": 76
+    },
+    {
+      "id": "A0029",
+      "label": "Tác tử 29",
+      "group": 4,
+      "stage": 0,
+      "value": 906,
+      "score": 3,
+      "x": 82.696,
+      "y": 39.534,
+      "start": 40,
+      "end": 66
+    },
+    {
+      "id": "A0030",
+      "label": "Tác tử 30",
+      "group": 5,
+      "stage": 0,
+      "value": 114,
+      "score": 22,
+      "x": 57.9,
+      "y": 47.719,
+      "start": 5,
+      "end": 93
+    },
+    {
+      "id": "A0031",
+      "label": "Tác tử 31",
+      "group": 0,
+      "stage": 4,
+      "value": 270,
+      "score": 84,
+      "x": 91.173,
+      "y": 49.177,
+      "start": 30,
+      "end": 78
+    },
+    {
+      "id": "A0032",
+      "label": "Tác tử 32",
+      "group": 1,
+      "stage": 4,
+      "value": 132,
+      "score": 89,
+      "x": 60.499,
+      "y": 39.655,
+      "start": 22,
+      "end": 90
+    },
+    {
+      "id": "A0033",
+      "label": "Tác tử 33",
+      "group": 2,
+      "stage": 5,
+      "value": 640,
+      "score": 37,
+      "x": 78.594,
+      "y": 88.045,
+      "start": 43,
+      "end": 97
+    },
+    {
+      "id": "A0034",
+      "label": "Tác tử 34",
+      "group": 3,
+      "stage": 5,
+      "value": 214,
+      "score": 47,
+      "x": 29.864,
+      "y": 59.007,
+      "start": 19,
+      "end": 96
+    },
+    {
+      "id": "A0035",
+      "label": "Tác tử 35",
+      "group": 4,
+      "stage": 0,
+      "value": 642,
+      "score": 20,
+      "x": 37.407,
+      "y": 86.143,
+      "start": 3,
+      "end": 84
+    },
+    {
+      "id": "A0036",
+      "label": "Tác tử 36",
+      "group": 5,
+      "stage": 4,
+      "value": 567,
+      "score": 43,
+      "x": 38.668,
+      "y": 11.437,
+      "start": 6,
+      "end": 89
+    },
+    {
+      "id": "A0037",
+      "label": "Tác tử 37",
+      "group": 0,
+      "stage": 1,
+      "value": 281,
+      "score": 26,
+      "x": 45.756,
+      "y": 66.824,
+      "start": 31,
+      "end": 73
+    },
+    {
+      "id": "A0038",
+      "label": "Tác tử 38",
+      "group": 1,
+      "stage": 1,
+      "value": 761,
+      "score": 44,
+      "x": 38.384,
+      "y": 64.644,
+      "start": 15,
+      "end": 87
+    },
+    {
+      "id": "A0039",
+      "label": "Tác tử 39",
+      "group": 2,
+      "stage": 1,
+      "value": 454,
+      "score": 40,
+      "x": 20.971,
+      "y": 10.736,
+      "start": 28,
+      "end": 88
+    },
+    {
+      "id": "A0040",
+      "label": "Tác tử 40",
+      "group": 3,
+      "stage": 4,
+      "value": 316,
+      "score": 8,
+      "x": 89.022,
+      "y": 40.962,
+      "start": 9,
+      "end": 66
+    },
+    {
+      "id": "A0041",
+      "label": "Tác tử 41",
+      "group": 4,
+      "stage": 2,
+      "value": 514,
+      "score": 35,
+      "x": 26.587,
+      "y": 63.809,
+      "start": 29,
+      "end": 98
+    },
+    {
+      "id": "A0042",
+      "label": "Tác tử 42",
+      "group": 5,
+      "stage": 3,
+      "value": 321,
+      "score": 24,
+      "x": 66.018,
+      "y": 82.74,
+      "start": 31,
+      "end": 69
+    },
+    {
+      "id": "A0043",
+      "label": "Tác tử 43",
+      "group": 0,
+      "stage": 5,
+      "value": 243,
+      "score": 42,
+      "x": 70.6,
+      "y": 82.026,
+      "start": 24,
+      "end": 65
+    },
+    {
+      "id": "A0044",
+      "label": "Tác tử 44",
+      "group": 1,
+      "stage": 2,
+      "value": 193,
+      "score": 49,
+      "x": 91.446,
+      "y": 60.958,
+      "start": 42,
+      "end": 82
+    },
+    {
+      "id": "A0045",
+      "label": "Tác tử 45",
+      "group": 2,
+      "stage": 1,
+      "value": 607,
+      "score": 91,
+      "x": 25.43,
+      "y": 29.456,
+      "start": 22,
+      "end": 71
+    },
+    {
+      "id": "A0046",
+      "label": "Tác tử 46",
+      "group": 3,
+      "stage": 1,
+      "value": 511,
+      "score": 18,
+      "x": 38.748,
+      "y": 66.388,
+      "start": 39,
+      "end": 82
+    },
+    {
+      "id": "A0047",
+      "label": "Tác tử 47",
+      "group": 4,
+      "stage": 4,
+      "value": 869,
+      "score": 90,
+      "x": 66.814,
+      "y": 25.902,
+      "start": 28,
+      "end": 74
+    },
+    {
+      "id": "A0048",
+      "label": "Tác tử 48",
+      "group": 5,
+      "stage": 3,
+      "value": 701,
+      "score": 42,
+      "x": 53.67,
+      "y": 79.741,
+      "start": 10,
+      "end": 96
+    },
+    {
+      "id": "A0049",
+      "label": "Tác tử 49",
+      "group": 0,
+      "stage": 3,
+      "value": 131,
+      "score": 32,
+      "x": 28.352,
+      "y": 10.157,
+      "start": 15,
+      "end": 95
+    },
+    {
+      "id": "A0050",
+      "label": "Tác tử 50",
+      "group": 1,
+      "stage": 3,
+      "value": 427,
+      "score": 98,
+      "x": 80.242,
+      "y": 63.504,
+      "start": 12,
+      "end": 73
+    }
+  ],
+  "edges": [
+    {
+      "id": "E00001",
+      "source": "A0001",
+      "target": "A0022",
+      "value": 21,
+      "time": 28,
+      "end": 46
+    },
+    {
+      "id": "E00002",
+      "source": "A0002",
+      "target": "A0004",
+      "value": 135,
+      "time": 72,
+      "end": 83
+    },
+    {
+      "id": "E00003",
+      "source": "A0003",
+      "target": "A0017",
+      "value": 14,
+      "time": 15,
+      "end": 27
+    },
+    {
+      "id": "E00004",
+      "source": "A0004",
+      "target": "A0028",
+      "value": 5,
+      "time": 55,
+      "end": 76
+    },
+    {
+      "id": "E00005",
+      "source": "A0005",
+      "target": "A0033",
+      "value": 19,
+      "time": 53,
+      "end": 71
+    },
+    {
+      "id": "E00006",
+      "source": "A0006",
+      "target": "A0041",
+      "value": 98,
+      "time": 16,
+      "end": 32
+    },
+    {
+      "id": "E00007",
+      "source": "A0007",
+      "target": "A0013",
+      "value": 5,
+      "time": 34,
+      "end": 48
+    },
+    {
+      "id": "E00008",
+      "source": "A0008",
+      "target": "A0010",
+      "value": 45,
+      "time": 45,
+      "end": 61
+    },
+    {
+      "id": "E00009",
+      "source": "A0009",
+      "target": "A0042",
+      "value": 192,
+      "time": 74,
+      "end": 93
+    },
+    {
+      "id": "E00010",
+      "source": "A0010",
+      "target": "A0022",
+      "value": 4,
+      "time": 2,
+      "end": 14
+    },
+    {
+      "id": "E00011",
+      "source": "A0011",
+      "target": "A0035",
+      "value": 179,
+      "time": 16,
+      "end": 34
+    },
+    {
+      "id": "E00012",
+      "source": "A0012",
+      "target": "A0031",
+      "value": 198,
+      "time": 80,
+      "end": 100
+    },
+    {
+      "id": "E00013",
+      "source": "A0013",
+      "target": "A0010",
+      "value": 189,
+      "time": 62,
+      "end": 72
+    },
+    {
+      "id": "E00014",
+      "source": "A0014",
+      "target": "A0044",
+      "value": 103,
+      "time": 49,
+      "end": 70
+    },
+    {
+      "id": "E00015",
+      "source": "A0015",
+      "target": "A0002",
+      "value": 180,
+      "time": 43,
+      "end": 58
+    },
+    {
+      "id": "E00016",
+      "source": "A0016",
+      "target": "A0045",
+      "value": 196,
+      "time": 59,
+      "end": 82
+    },
+    {
+      "id": "E00017",
+      "source": "A0017",
+      "target": "A0028",
+      "value": 31,
+      "time": 13,
+      "end": 34
+    },
+    {
+      "id": "E00018",
+      "source": "A0018",
+      "target": "A0046",
+      "value": 63,
+      "time": 18,
+      "end": 33
+    },
+    {
+      "id": "E00019",
+      "source": "A0019",
+      "target": "A0046",
+      "value": 139,
+      "time": 40,
+      "end": 49
+    },
+    {
+      "id": "E00020",
+      "source": "A0020",
+      "target": "A0032",
+      "value": 170,
+      "time": 57,
+      "end": 73
+    },
+    {
+      "id": "E00021",
+      "source": "A0021",
+      "target": "A0044",
+      "value": 16,
+      "time": 79,
+      "end": 89
+    },
+    {
+      "id": "E00022",
+      "source": "A0022",
+      "target": "A0042",
+      "value": 102,
+      "time": 66,
+      "end": 76
+    },
+    {
+      "id": "E00023",
+      "source": "A0023",
+      "target": "A0025",
+      "value": 164,
+      "time": 38,
+      "end": 52
+    },
+    {
+      "id": "E00024",
+      "source": "A0024",
+      "target": "A0045",
+      "value": 49,
+      "time": 31,
+      "end": 47
+    },
+    {
+      "id": "E00025",
+      "source": "A0025",
+      "target": "A0007",
+      "value": 181,
+      "time": 30,
+      "end": 39
+    },
+    {
+      "id": "E00026",
+      "source": "A0026",
+      "target": "A0046",
+      "value": 126,
+      "time": 20,
+      "end": 30
+    },
+    {
+      "id": "E00027",
+      "source": "A0027",
+      "target": "A0020",
+      "value": 123,
+      "time": 81,
+      "end": 90
+    },
+    {
+      "id": "E00028",
+      "source": "A0028",
+      "target": "A0039",
+      "value": 115,
+      "time": 86,
+      "end": 100
+    },
+    {
+      "id": "E00029",
+      "source": "A0029",
+      "target": "A0032",
+      "value": 143,
+      "time": 48,
+      "end": 71
+    },
+    {
+      "id": "E00030",
+      "source": "A0030",
+      "target": "A0048",
+      "value": 107,
+      "time": 37,
+      "end": 59
+    },
+    {
+      "id": "E00031",
+      "source": "A0031",
+      "target": "A0011",
+      "value": 10,
+      "time": 65,
+      "end": 81
+    },
+    {
+      "id": "E00032",
+      "source": "A0032",
+      "target": "A0013",
+      "value": 84,
+      "time": 1,
+      "end": 18
+    },
+    {
+      "id": "E00033",
+      "source": "A0033",
+      "target": "A0012",
+      "value": 106,
+      "time": 22,
+      "end": 35
+    },
+    {
+      "id": "E00034",
+      "source": "A0034",
+      "target": "A0013",
+      "value": 199,
+      "time": 79,
+      "end": 94
+    },
+    {
+      "id": "E00035",
+      "source": "A0035",
+      "target": "A0022",
+      "value": 109,
+      "time": 15,
+      "end": 25
+    },
+    {
+      "id": "E00036",
+      "source": "A0036",
+      "target": "A0003",
+      "value": 193,
+      "time": 62,
+      "end": 87
+    },
+    {
+      "id": "E00037",
+      "source": "A0037",
+      "target": "A0022",
+      "value": 190,
+      "time": 48,
+      "end": 73
+    },
+    {
+      "id": "E00038",
+      "source": "A0038",
+      "target": "A0012",
+      "value": 134,
+      "time": 91,
+      "end": 100
+    },
+    {
+      "id": "E00039",
+      "source": "A0039",
+      "target": "A0001",
+      "value": 126,
+      "time": 52,
+      "end": 64
+    },
+    {
+      "id": "E00040",
+      "source": "A0040",
+      "target": "A0033",
+      "value": 18,
+      "time": 45,
+      "end": 55
+    },
+    {
+      "id": "E00041",
+      "source": "A0041",
+      "target": "A0001",
+      "value": 138,
+      "time": 18,
+      "end": 43
+    },
+    {
+      "id": "E00042",
+      "source": "A0042",
+      "target": "A0048",
+      "value": 127,
+      "time": 59,
+      "end": 75
+    },
+    {
+      "id": "E00043",
+      "source": "A0043",
+      "target": "A0020",
+      "value": 81,
+      "time": 9,
+      "end": 20
+    },
+    {
+      "id": "E00044",
+      "source": "A0044",
+      "target": "A0001",
+      "value": 149,
+      "time": 16,
+      "end": 24
+    },
+    {
+      "id": "E00045",
+      "source": "A0045",
+      "target": "A0009",
+      "value": 74,
+      "time": 28,
+      "end": 36
+    },
+    {
+      "id": "E00046",
+      "source": "A0046",
+      "target": "A0024",
+      "value": 103,
+      "time": 74,
+      "end": 83
+    },
+    {
+      "id": "E00047",
+      "source": "A0047",
+      "target": "A0002",
+      "value": 124,
+      "time": 8,
+      "end": 30
+    },
+    {
+      "id": "E00048",
+      "source": "A0048",
+      "target": "A0002",
+      "value": 193,
+      "time": 27,
+      "end": 40
+    },
+    {
+      "id": "E00049",
+      "source": "A0049",
+      "target": "A0017",
+      "value": 39,
+      "time": 81,
+      "end": 100
+    },
+    {
+      "id": "E00050",
+      "source": "A0050",
+      "target": "A0017",
+      "value": 95,
+      "time": 78,
+      "end": 100
+    },
+    {
+      "id": "E00051",
+      "source": "A0011",
+      "target": "A0034",
+      "value": 146,
+      "time": 82,
+      "end": 93
+    },
+    {
+      "id": "E00052",
+      "source": "A0038",
+      "target": "A0022",
+      "value": 122,
+      "time": 86,
+      "end": 99
+    },
+    {
+      "id": "E00053",
+      "source": "A0002",
+      "target": "A0007",
+      "value": 179,
+      "time": 23,
+      "end": 44
+    },
+    {
+      "id": "E00054",
+      "source": "A0035",
+      "target": "A0011",
+      "value": 91,
+      "time": 50,
+      "end": 62
+    },
+    {
+      "id": "E00055",
+      "source": "A0016",
+      "target": "A0003",
+      "value": 114,
+      "time": 69,
+      "end": 93
+    },
+    {
+      "id": "E00056",
+      "source": "A0027",
+      "target": "A0024",
+      "value": 194,
+      "time": 15,
+      "end": 27
+    },
+    {
+      "id": "E00057",
+      "source": "A0043",
+      "target": "A0019",
+      "value": 32,
+      "time": 50,
+      "end": 63
+    },
+    {
+      "id": "E00058",
+      "source": "A0013",
+      "target": "A0030",
+      "value": 190,
+      "time": 70,
+      "end": 89
+    },
+    {
+      "id": "E00059",
+      "source": "A0047",
+      "target": "A0001",
+      "value": 160,
+      "time": 85,
+      "end": 100
+    },
+    {
+      "id": "E00060",
+      "source": "A0023",
+      "target": "A0048",
+      "value": 192,
+      "time": 66,
+      "end": 93
+    },
+    {
+      "id": "E00061",
+      "source": "A0012",
+      "target": "A0011",
+      "value": 75,
+      "time": 13,
+      "end": 23
+    },
+    {
+      "id": "E00062",
+      "source": "A0021",
+      "target": "A0020",
+      "value": 141,
+      "time": 56,
+      "end": 80
+    },
+    {
+      "id": "E00063",
+      "source": "A0037",
+      "target": "A0039",
+      "value": 22,
+      "time": 48,
+      "end": 69
+    },
+    {
+      "id": "E00064",
+      "source": "A0025",
+      "target": "A0004",
+      "value": 163,
+      "time": 1,
+      "end": 24
+    },
+    {
+      "id": "E00065",
+      "source": "A0048",
+      "target": "A0027",
+      "value": 41,
+      "time": 81,
+      "end": 100
+    },
+    {
+      "id": "E00066",
+      "source": "A0008",
+      "target": "A0022",
+      "value": 23,
+      "time": 83,
+      "end": 100
+    },
+    {
+      "id": "E00067",
+      "source": "A0044",
+      "target": "A0014",
+      "value": 60,
+      "time": 55,
+      "end": 64
+    },
+    {
+      "id": "E00068",
+      "source": "A0026",
+      "target": "A0023",
+      "value": 118,
+      "time": 60,
+      "end": 83
+    },
+    {
+      "id": "E00069",
+      "source": "A0006",
+      "target": "A0025",
+      "value": 199,
+      "time": 13,
+      "end": 28
+    },
+    {
+      "id": "E00070",
+      "source": "A0019",
+      "target": "A0013",
+      "value": 83,
+      "time": 39,
+      "end": 47
+    },
+    {
+      "id": "E00071",
+      "source": "A0036",
+      "target": "A0037",
+      "value": 90,
+      "time": 81,
+      "end": 100
+    },
+    {
+      "id": "E00072",
+      "source": "A0018",
+      "target": "A0035",
+      "value": 138,
+      "time": 55,
+      "end": 70
+    },
+    {
+      "id": "E00073",
+      "source": "A0049",
+      "target": "A0022",
+      "value": 85,
+      "time": 10,
+      "end": 35
+    },
+    {
+      "id": "E00074",
+      "source": "A0027",
+      "target": "A0022",
+      "value": 199,
+      "time": 50,
+      "end": 76
+    },
+    {
+      "id": "E00075",
+      "source": "A0048",
+      "target": "A0007",
+      "value": 14,
+      "time": 10,
+      "end": 34
+    },
+    {
+      "id": "E00076",
+      "source": "A0049",
+      "target": "A0004",
+      "value": 151,
+      "time": 65,
+      "end": 87
+    },
+    {
+      "id": "E00077",
+      "source": "A0021",
+      "target": "A0048",
+      "value": 121,
+      "time": 3,
+      "end": 26
+    },
+    {
+      "id": "E00078",
+      "source": "A0018",
+      "target": "A0040",
+      "value": 180,
+      "time": 67,
+      "end": 84
+    },
+    {
+      "id": "E00079",
+      "source": "A0009",
+      "target": "A0034",
+      "value": 79,
+      "time": 24,
+      "end": 32
+    },
+    {
+      "id": "E00080",
+      "source": "A0017",
+      "target": "A0030",
+      "value": 38,
+      "time": 26,
+      "end": 45
+    },
+    {
+      "id": "E00081",
+      "source": "A0004",
+      "target": "A0014",
+      "value": 13,
+      "time": 72,
+      "end": 86
+    },
+    {
+      "id": "E00082",
+      "source": "A0013",
+      "target": "A0043",
+      "value": 170,
+      "time": 30,
+      "end": 54
+    },
+    {
+      "id": "E00083",
+      "source": "A0008",
+      "target": "A0005",
+      "value": 132,
+      "time": 73,
+      "end": 84
+    },
+    {
+      "id": "E00084",
+      "source": "A0020",
+      "target": "A0016",
+      "value": 198,
+      "time": 91,
+      "end": 100
+    },
+    {
+      "id": "E00085",
+      "source": "A0001",
+      "target": "A0002",
+      "value": 7,
+      "time": 59,
+      "end": 71
+    },
+    {
+      "id": "E00086",
+      "source": "A0032",
+      "target": "A0014",
+      "value": 187,
+      "time": 1,
+      "end": 19
+    },
+    {
+      "id": "E00087",
+      "source": "A0008",
+      "target": "A0046",
+      "value": 117,
+      "time": 90,
+      "end": 100
+    },
+    {
+      "id": "E00088",
+      "source": "A0034",
+      "target": "A0013",
+      "value": 34,
+      "time": 50,
+      "end": 60
+    },
+    {
+      "id": "E00089",
+      "source": "A0047",
+      "target": "A0023",
+      "value": 121,
+      "time": 89,
+      "end": 99
+    },
+    {
+      "id": "E00090",
+      "source": "A0037",
+      "target": "A0019",
+      "value": 74,
+      "time": 43,
+      "end": 67
+    },
+    {
+      "id": "E00091",
+      "source": "A0007",
+      "target": "A0041",
+      "value": 152,
+      "time": 70,
+      "end": 91
+    },
+    {
+      "id": "E00092",
+      "source": "A0032",
+      "target": "A0013",
+      "value": 93,
+      "time": 6,
+      "end": 18
+    },
+    {
+      "id": "E00093",
+      "source": "A0038",
+      "target": "A0047",
+      "value": 2,
+      "time": 14,
+      "end": 34
+    },
+    {
+      "id": "E00094",
+      "source": "A0033",
+      "target": "A0034",
+      "value": 145,
+      "time": 56,
+      "end": 83
+    },
+    {
+      "id": "E00095",
+      "source": "A0029",
+      "target": "A0028",
+      "value": 162,
+      "time": 42,
+      "end": 53
+    },
+    {
+      "id": "E00096",
+      "source": "A0036",
+      "target": "A0032",
+      "value": 195,
+      "time": 26,
+      "end": 35
+    },
+    {
+      "id": "E00097",
+      "source": "A0004",
+      "target": "A0020",
+      "value": 99,
+      "time": 58,
+      "end": 81
+    },
+    {
+      "id": "E00098",
+      "source": "A0034",
+      "target": "A0033",
+      "value": 5,
+      "time": 12,
+      "end": 26
+    },
+    {
+      "id": "E00099",
+      "source": "A0041",
+      "target": "A0039",
+      "value": 169,
+      "time": 1,
+      "end": 15
+    },
+    {
+      "id": "E00100",
+      "source": "A0010",
+      "target": "A0015",
+      "value": 81,
+      "time": 55,
+      "end": 73
+    },
+    {
+      "id": "E00101",
+      "source": "A0013",
+      "target": "A0044",
+      "value": 137,
+      "time": 87,
+      "end": 95
+    },
+    {
+      "id": "E00102",
+      "source": "A0030",
+      "target": "A0005",
+      "value": 165,
+      "time": 34,
+      "end": 56
+    },
+    {
+      "id": "E00103",
+      "source": "A0048",
+      "target": "A0039",
+      "value": 104,
+      "time": 33,
+      "end": 58
+    },
+    {
+      "id": "E00104",
+      "source": "A0016",
+      "target": "A0046",
+      "value": 106,
+      "time": 38,
+      "end": 52
+    },
+    {
+      "id": "E00105",
+      "source": "A0046",
+      "target": "A0032",
+      "value": 58,
+      "time": 22,
+      "end": 37
+    },
+    {
+      "id": "E00106",
+      "source": "A0042",
+      "target": "A0044",
+      "value": 73,
+      "time": 69,
+      "end": 78
+    },
+    {
+      "id": "E00107",
+      "source": "A0009",
+      "target": "A0010",
+      "value": 199,
+      "time": 81,
+      "end": 98
+    },
+    {
+      "id": "E00108",
+      "source": "A0028",
+      "target": "A0001",
+      "value": 8,
+      "time": 47,
+      "end": 61
+    },
+    {
+      "id": "E00109",
+      "source": "A0003",
+      "target": "A0027",
+      "value": 44,
+      "time": 84,
+      "end": 95
+    },
+    {
+      "id": "E00110",
+      "source": "A0025",
+      "target": "A0035",
+      "value": 74,
+      "time": 0,
+      "end": 21
+    },
+    {
+      "id": "E00111",
+      "source": "A0034",
+      "target": "A0023",
+      "value": 59,
+      "time": 45,
+      "end": 61
+    },
+    {
+      "id": "E00112",
+      "source": "A0013",
+      "target": "A0018",
+      "value": 190,
+      "time": 36,
+      "end": 54
+    },
+    {
+      "id": "E00113",
+      "source": "A0002",
+      "target": "A0006",
+      "value": 80,
+      "time": 56,
+      "end": 81
+    },
+    {
+      "id": "E00114",
+      "source": "A0015",
+      "target": "A0045",
+      "value": 166,
+      "time": 76,
+      "end": 90
+    },
+    {
+      "id": "E00115",
+      "source": "A0048",
+      "target": "A0021",
+      "value": 153,
+      "time": 31,
+      "end": 54
+    },
+    {
+      "id": "E00116",
+      "source": "A0016",
+      "target": "A0001",
+      "value": 91,
+      "time": 30,
+      "end": 48
+    },
+    {
+      "id": "E00117",
+      "source": "A0018",
+      "target": "A0032",
+      "value": 99,
+      "time": 22,
+      "end": 45
+    },
+    {
+      "id": "E00118",
+      "source": "A0008",
+      "target": "A0038",
+      "value": 135,
+      "time": 12,
+      "end": 23
+    },
+    {
+      "id": "E00119",
+      "source": "A0022",
+      "target": "A0039",
+      "value": 85,
+      "time": 77,
+      "end": 85
+    },
+    {
+      "id": "E00120",
+      "source": "A0002",
+      "target": "A0004",
+      "value": 153,
+      "time": 53,
+      "end": 62
+    },
+    {
+      "id": "E00121",
+      "source": "A0001",
+      "target": "A0026",
+      "value": 53,
+      "time": 8,
+      "end": 23
+    },
+    {
+      "id": "E00122",
+      "source": "A0048",
+      "target": "A0045",
+      "value": 146,
+      "time": 50,
+      "end": 73
+    },
+    {
+      "id": "E00123",
+      "source": "A0007",
+      "target": "A0034",
+      "value": 176,
+      "time": 51,
+      "end": 63
+    },
+    {
+      "id": "E00124",
+      "source": "A0001",
+      "target": "A0036",
+      "value": 166,
+      "time": 16,
+      "end": 31
+    },
+    {
+      "id": "E00125",
+      "source": "A0014",
+      "target": "A0008",
+      "value": 26,
+      "time": 13,
+      "end": 29
+    },
+    {
+      "id": "E00126",
+      "source": "A0003",
+      "target": "A0013",
+      "value": 192,
+      "time": 31,
+      "end": 46
+    },
+    {
+      "id": "E00127",
+      "source": "A0035",
+      "target": "A0020",
+      "value": 24,
+      "time": 23,
+      "end": 36
+    },
+    {
+      "id": "E00128",
+      "source": "A0034",
+      "target": "A0005",
+      "value": 69,
+      "time": 81,
+      "end": 90
+    },
+    {
+      "id": "E00129",
+      "source": "A0049",
+      "target": "A0040",
+      "value": 118,
+      "time": 35,
+      "end": 51
+    },
+    {
+      "id": "E00130",
+      "source": "A0048",
+      "target": "A0003",
+      "value": 175,
+      "time": 23,
+      "end": 44
+    },
+    {
+      "id": "E00131",
+      "source": "A0015",
+      "target": "A0042",
+      "value": 35,
+      "time": 14,
+      "end": 30
+    },
+    {
+      "id": "E00132",
+      "source": "A0022",
+      "target": "A0025",
+      "value": 178,
+      "time": 14,
+      "end": 28
+    },
+    {
+      "id": "E00133",
+      "source": "A0009",
+      "target": "A0022",
+      "value": 137,
+      "time": 21,
+      "end": 48
+    },
+    {
+      "id": "E00134",
+      "source": "A0017",
+      "target": "A0040",
+      "value": 197,
+      "time": 78,
+      "end": 88
+    },
+    {
+      "id": "E00135",
+      "source": "A0025",
+      "target": "A0050",
+      "value": 63,
+      "time": 70,
+      "end": 93
+    },
+    {
+      "id": "E00136",
+      "source": "A0050",
+      "target": "A0010",
+      "value": 153,
+      "time": 77,
+      "end": 87
+    },
+    {
+      "id": "E00137",
+      "source": "A0004",
+      "target": "A0002",
+      "value": 146,
+      "time": 87,
+      "end": 100
+    },
+    {
+      "id": "E00138",
+      "source": "A0005",
+      "target": "A0009",
+      "value": 118,
+      "time": 0,
+      "end": 17
+    },
+    {
+      "id": "E00139",
+      "source": "A0039",
+      "target": "A0025",
+      "value": 20,
+      "time": 5,
+      "end": 29
+    },
+    {
+      "id": "E00140",
+      "source": "A0020",
+      "target": "A0010",
+      "value": 18,
+      "time": 28,
+      "end": 49
+    },
+    {
+      "id": "E00141",
+      "source": "A0025",
+      "target": "A0034",
+      "value": 43,
+      "time": 20,
+      "end": 41
+    },
+    {
+      "id": "E00142",
+      "source": "A0033",
+      "target": "A0005",
+      "value": 164,
+      "time": 24,
+      "end": 47
+    },
+    {
+      "id": "E00143",
+      "source": "A0038",
+      "target": "A0012",
+      "value": 56,
+      "time": 39,
+      "end": 66
+    },
+    {
+      "id": "E00144",
+      "source": "A0039",
+      "target": "A0014",
+      "value": 136,
+      "time": 49,
+      "end": 63
+    },
+    {
+      "id": "E00145",
+      "source": "A0023",
+      "target": "A0042",
+      "value": 124,
+      "time": 60,
+      "end": 79
+    },
+    {
+      "id": "E00146",
+      "source": "A0025",
+      "target": "A0003",
+      "value": 192,
+      "time": 15,
+      "end": 41
+    },
+    {
+      "id": "E00147",
+      "source": "A0027",
+      "target": "A0047",
+      "value": 185,
+      "time": 4,
+      "end": 15
+    },
+    {
+      "id": "E00148",
+      "source": "A0045",
+      "target": "A0014",
+      "value": 42,
+      "time": 68,
+      "end": 79
+    },
+    {
+      "id": "E00149",
+      "source": "A0012",
+      "target": "A0004",
+      "value": 20,
+      "time": 19,
+      "end": 31
+    },
+    {
+      "id": "E00150",
+      "source": "A0050",
+      "target": "A0015",
+      "value": 167,
+      "time": 33,
+      "end": 45
+    }
+  ]
+}

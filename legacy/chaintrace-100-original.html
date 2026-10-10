@@ -1,0 +1,1935 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChainTrace Pro — 100 Dynamic Investigation Visualizations</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts-gl@2.0.9/dist/echarts-gl.min.js"></script>
+<style>
+  :root{
+    --bg:#03060d; --card:#0a1220; --card2:#0f1829; --border:#1a2740;
+    --cyan:#00e5ff; --green:#2ed573; --red:#ff4757; --orange:#ffa502;
+    --purple:#a55eea; --pink:#ff6b9d; --yellow:#ffd93d; --blue:#4d96ff;
+    --magenta:#ff2e9a; --lime:#7bffb2; --text:#e6edf7; --muted:#5e6d85;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:radial-gradient(ellipse at top,#08111f 0%,#03060d 55%);
+    color:var(--text); font-family:'Segoe UI',Roboto,-apple-system,sans-serif;
+    padding:16px; min-height:100vh; overflow-x:hidden;
+  }
+  /* ===== HEADER ===== */
+  header{
+    position:sticky; top:0; z-index:100;
+    display:grid; grid-template-columns:1fr auto; gap:20px; align-items:center;
+    padding:16px 22px;
+    background:linear-gradient(135deg,rgba(10,18,32,.97),rgba(20,29,51,.97));
+    border:1px solid var(--border); border-radius:14px; margin-bottom:16px;
+    box-shadow:0 0 40px rgba(0,229,255,.08), inset 0 0 60px rgba(165,94,234,.04);
+    backdrop-filter:blur(12px);
+  }
+  header h1{
+    font-size:18px; font-weight:800; letter-spacing:.5px;
+    background:linear-gradient(90deg,var(--cyan),var(--purple),var(--magenta));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  }
+  header .sub{font-size:10.5px;color:var(--muted);margin-top:4px;letter-spacing:.4px}
+  .stats{display:flex;gap:18px;flex-wrap:wrap}
+  .stat{text-align:right;min-width:52px}
+  .stat b{display:block;font-size:15px;color:var(--cyan);font-weight:800;font-variant-numeric:tabular-nums}
+  .stat span{font-size:8.5px;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px}
+
+  /* ===== TOOLBAR ===== */
+  .toolbar{
+    display:flex; gap:8px; flex-wrap:wrap; padding:12px 16px; margin-bottom:16px;
+    background:var(--card); border:1px solid var(--border); border-radius:12px;
+    position:sticky; top:98px; z-index:99; backdrop-filter:blur(10px);
+  }
+  .toolbar button{
+    background:var(--card2); color:var(--text); border:1px solid var(--border);
+    padding:6px 12px; border-radius:6px; font-size:11px; cursor:pointer;
+    transition:all .2s; font-weight:600; letter-spacing:.3px;
+  }
+  .toolbar button:hover{border-color:var(--cyan);color:var(--cyan);
+    box-shadow:0 0 12px rgba(0,229,255,.25)}
+  .toolbar button.active{background:linear-gradient(135deg,var(--cyan),var(--purple));
+    color:var(--bg); border-color:transparent}
+  .toolbar .sep{width:1px;background:var(--border);margin:0 4px}
+
+  .legend-bar{
+    display:flex; gap:12px; flex-wrap:wrap; padding:10px 16px; margin-bottom:16px;
+    background:var(--card); border:1px solid var(--border); border-radius:10px;
+    font-size:10.5px; color:var(--muted);
+  }
+  .legend-bar i{display:inline-block;width:10px;height:10px;border-radius:50%;
+    margin-right:5px;vertical-align:middle;box-shadow:0 0 6px currentColor}
+
+  /* ===== SECTIONS ===== */
+  .section-title{
+    display:flex; align-items:center; gap:12px;
+    margin:28px 4px 14px; padding:10px 18px;
+    background:linear-gradient(90deg,rgba(0,229,255,.12),transparent 60%);
+    border-left:3px solid var(--cyan); border-radius:6px;
+    font-size:14px; font-weight:700; letter-spacing:.8px;
+    color:var(--text); text-transform:uppercase;
+  }
+  .section-title .badge{
+    margin-left:auto; font-size:10px; padding:3px 9px; border-radius:4px;
+    background:var(--card2); color:var(--muted); border:1px solid var(--border);
+    letter-spacing:1px;
+  }
+
+  /* ===== GRID ===== */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(360px,1fr));
+    gap:14px;
+  }
+  .card{
+    background:var(--card); border:1px solid var(--border);
+    border-radius:12px; overflow:hidden; position:relative;
+    transition:border-color .3s, transform .3s, box-shadow .3s;
+    contain:content;
+  }
+  .card:hover{border-color:var(--cyan); transform:translateY(-2px);
+    box-shadow:0 8px 28px rgba(0,229,255,.12)}
+  .card.dynamic::before{
+    content:''; position:absolute; top:0; left:0; right:0; height:2px;
+    background:linear-gradient(90deg,var(--magenta),var(--cyan),var(--magenta));
+    background-size:200% 100%;
+    animation:pulse 2.5s linear infinite;
+  }
+  @keyframes pulse{0%{background-position:0% 0}100%{background-position:200% 0}}
+  .card .head{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:8px 12px; border-bottom:1px solid var(--border); background:var(--card2);
+  }
+  .card .head .num{
+    font-size:9.5px; font-weight:800; color:var(--bg);
+    background:linear-gradient(135deg,var(--cyan),var(--purple));
+    padding:2.5px 7px; border-radius:4px; letter-spacing:.4px;
+  }
+  .card.dynamic .head .num{background:linear-gradient(135deg,var(--magenta),var(--pink))}
+  .card .head .title{font-size:11px;font-weight:600;flex:1;margin-left:9px;
+    letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .card .head .cat{font-size:8px;color:var(--muted);text-transform:uppercase;
+    letter-spacing:.7px;padding:2px 6px;border:1px solid var(--border);border-radius:3px}
+  .chart{width:100%;height:290px}
+  footer{text-align:center;padding:30px;color:var(--muted);font-size:10.5px;letter-spacing:.4px}
+
+  /* scrollbar */
+  ::-webkit-scrollbar{width:8px;height:8px}
+  ::-webkit-scrollbar-track{background:var(--bg)}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+  ::-webkit-scrollbar-thumb:hover{background:var(--cyan)}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>⚡ ChainTrace Pro — Dynamic Investigation Suite</h1>
+    <div class="sub">100 Visualizations · Line / Point / Area / Network / Dynamic · Multi-Agent Tracing · Simulated 1,000 Chains × 1,000 Nodes</div>
+  </div>
+  <div class="stats">
+    <div class="stat"><b>1,000</b><span>Chains</span></div>
+    <div class="stat"><b>1,000</b><span>Nodes</span></div>
+    <div class="stat"><b>2,500</b><span>Edges</span></div>
+    <div class="stat"><b id="live-tx">0</b><span>Live TX/s</span></div>
+    <div class="stat"><b>100</b><span>Viz</span></div>
+  </div>
+</header>
+
+<div class="toolbar" id="toolbar">
+  <button data-filter="all" class="active">ALL (100)</button>
+  <button data-filter="LINE">📈 LINE / TRACE (20)</button>
+  <button data-filter="POINT">🔵 POINT / NODE (20)</button>
+  <button data-filter="AREA">🟦 AREA / REGION (20)</button>
+  <button data-filter="NETWORK">🕸️ NETWORK (20)</button>
+  <button data-filter="DYNAMIC">⚡ DYNAMIC (10)</button>
+  <button data-filter="SPEC">🎯 SPECIALIZED (10)</button>
+  <div class="sep"></div>
+  <button id="toggle-anim" class="active">⏸ Pause Animation</button>
+</div>
+
+<div class="legend-bar">
+  <span><i style="background:#00e5ff;color:#00e5ff"></i>Exchange</span>
+  <span><i style="background:#2ed573;color:#2ed573"></i>DeFi</span>
+  <span><i style="background:#ffa502;color:#ffa502"></i>Wallet</span>
+  <span><i style="background:#ff4757;color:#ff4757"></i>Mixer</span>
+  <span><i style="background:#a55eea;color:#a55eea"></i>Bridge</span>
+  <span><i style="background:#ff6b9d;color:#ff6b9d"></i>Darknet</span>
+  <span><i style="background:#ffd93d;color:#ffd93d"></i>Miner</span>
+  <span><i style="background:#4d96ff;color:#4d96ff"></i>Contract</span>
+  <span><i style="background:#ff2e9a;color:#ff2e9a"></i>Whale</span>
+  <span><i style="background:#7bffb2;color:#7bffb2"></i>Bot</span>
+  <span><i style="background:#ff3838;color:#ff3838"></i>Attacker</span>
+</div>
+
+<div id="app"></div>
+
+<footer>
+  ⚡ ChainTrace Pro · 100 visualizations · lazy-render + live animation · ECharts + ECharts-GL
+</footer>
+
+<script>
+/* ============================================================
+   0. GLOBAL CONFIG
+   ============================================================ */
+const CHAINS = ['Ethereum','Bitcoin','BSC','Polygon','Arbitrum','Optimism','Avalanche','Solana','Tron','Base'];
+const TYPES = ['Exchange','DeFi','Wallet','Mixer','Bridge','Darknet','Miner','Contract','Whale','Bot','Attacker','Victim'];
+const ACTORS = {
+  Exchange:'#00e5ff', DeFi:'#2ed573', Wallet:'#ffa502', Mixer:'#ff4757',
+  Bridge:'#a55eea', Darknet:'#ff6b9d', Miner:'#ffd93d', Contract:'#4d96ff',
+  Whale:'#ff2e9a', Bot:'#7bffb2', Attacker:'#ff3838', Victim:'#ff9f1c'
+};
+const ACTOR_ARR = Object.values(ACTORS);
+
+/* ============================================================
+   1. DATA SIMULATION
+   ============================================================ */
+const rnd = (a,b)=>a+Math.random()*(b-a);
+const rndi = (a,b)=>Math.floor(rnd(a,b));
+
+const nodes = Array.from({length:1000},(_,i)=>{
+  const t = TYPES[i%TYPES.length];
+  return {
+    id:'0x'+Math.random().toString(16).slice(2,10),
+    chain:CHAINS[i%CHAINS.length],
+    type:t,
+    balance:+rnd(10,50000).toFixed(2),
+    risk:+rnd(0,100).toFixed(1),
+    txCount:rndi(1,20000),
+    degree:rndi(1,300),
+    lat:rnd(-65,75),
+    lng:rnd(-175,175),
+    cluster:rndi(0,10),
+    ts:Date.now()-rnd(0,365*24*3600*1000),
+    velocity:+rnd(0,500).toFixed(1)
+  };
+});
+
+const edges = Array.from({length:2500},()=>{
+  const a=nodes[rndi(0,1000)], b=nodes[rndi(0,1000)];
+  return {source:a.id, target:b.id, value:+rnd(0.01,500).toFixed(2), ts:Date.now()-rnd(0,30*24*3600*1000)};
+});
+
+// Time series
+const DAYS=180;
+const TL = Array.from({length:DAYS},(_,i)=>{
+  const d=new Date(); d.setDate(d.getDate()-(DAYS-i));
+  return d.toISOString().slice(5,10);
+});
+const TS = {
+  tx: TL.map(()=>rndi(20000,120000)),
+  vol: TL.map(()=>+rnd(100,900).toFixed(1)),
+  risk: TL.map(()=>+rnd(10,45).toFixed(1)),
+  price: TL.map((_,i)=>+(30000+Math.sin(i/8)*8000+rnd(-1000,1000)).toFixed(0)),
+  inflow: TL.map(()=>+rnd(50,400).toFixed(1)),
+  outflow: TL.map(()=>+rnd(40,380).toFixed(1)),
+  attacker: TL.map(()=>+rnd(0,80).toFixed(1)),
+  victim: TL.map(()=>+rnd(0,60).toFixed(1)),
+  whale: TL.map(()=>+rnd(100,600).toFixed(1)),
+  bot: TL.map(()=>+rnd(200,900).toFixed(1))
+};
+
+// OHLC
+const OHLC = Array.from({length:80},(_,i)=>{
+  const b=30000+Math.sin(i/6)*9000;
+  const o=b+rnd(-600,600), c=b+rnd(-600,600);
+  return [i, +o.toFixed(0), +c.toFixed(0), +Math.min(o,c)-rnd(0,500), +Math.max(o,c)+rnd(0,500)];
+});
+
+// Categories breakdown
+const CATS = TYPES;
+const catCount = CATS.map(t=>nodes.filter(n=>n.type===t).length);
+
+// Radar
+const RADAR_IND = ['Volume','Freq','Risk','Anon','Connect','Age','Velocity','Degree'].map(n=>({name:n,max:100}));
+const radarData = CATS.slice(0,6).map((t,i)=>({
+  name:t,
+  value:RADAR_IND.map(()=>+rnd(20,100).toFixed(0)),
+  itemStyle:{color:ACTOR_ARR[i]}
+}));
+
+// Boxplot
+const boxData = CATS.map(t=>{
+  const v = nodes.filter(n=>n.type===t).map(n=>n.risk).sort((a,b)=>a-b);
+  const q = p=>v[Math.floor(v.length*p)]||0;
+  return [q(.1),q(.25),q(.5),q(.75),q(.9)].map(x=>+x.toFixed(1));
+});
+
+// Parallel
+const parallelData = nodes.slice(0,150).map(n=>[n.balance,n.txCount,n.degree,n.risk,n.velocity,n.cluster*10]);
+
+// Calendar
+const calendarData = Array.from({length:365},(_,i)=>{
+  const d=new Date(); d.setDate(d.getDate()-i);
+  return [d.toISOString().slice(0,10), rndi(0,100)];
+});
+
+// Geo
+const geoPts = nodes.map(n=>({name:n.id, value:[n.lng,n.lat,n.balance]}));
+
+// SOM
+const somData = Array.from({length:500},()=>{
+  const c=rndi(0,8);
+  const centers=[[10,10],[30,15],[15,30],[35,35],[55,20],[20,55],[50,50],[70,70]];
+  return [centers[c][0]+rnd(-4,4), centers[c][1]+rnd(-4,4), c];
+});
+
+// World map dot matrix
+function isLand(lng,lat){
+  if(lng>=-170&&lng<=-50&&lat>=15&&lat<=72){ if(lat>55&&lng>-100)return false; if(lat<25&&lng>-90&&lng<-60)return false; return true; }
+  if(lng>=-85&&lng<=-35&&lat>=-55&&lat<=12){ const t=(lat+55)/67; return lng>=-85+(1-t)*22&&lng<=-35-(1-t)*12; }
+  if(lng>=-10&&lng<=45&&lat>=36&&lat<=70){ if(lat<45&&lng>35)return false; return true; }
+  if(lng>=-20&&lng<=52&&lat>=-35&&lat<=35){ if(lat>15&&lng<-10)return false; return lng>=-20+Math.abs(lat/70)*8; }
+  if(lng>=40&&lng<=180&&lat>=0&&lat<=75){ if(lat>60&&lng>140)return false; if(lat<10&&lng<95&&lng>60)return false; return true; }
+  if(lng>=112&&lng<=155&&lat>=-40&&lat<=-10)return true;
+  if(lng>=165&&lng<=180&&lat>=-48&&lat<=-34)return true;
+  return false;
+}
+const WORLD_DOTS = (()=>{
+  const d=[]; for(let lng=-180;lng<=180;lng+=4) for(let lat=-60;lat<=80;lat+=4)
+    if(isLand(lng,lat)) d.push([+lng.toFixed(1),+lat.toFixed(1)]);
+  return d;
+})();
+
+/* ============================================================
+   2. BASE CHART CONFIG
+   ============================================================ */
+const BASE = {backgroundColor:'transparent', textStyle:{color:'#e6edf7'}};
+const TT = {trigger:'item',backgroundColor:'#0a1220',borderColor:'#1a2740',
+  textStyle:{color:'#e6edf7',fontSize:10.5}};
+const TTX = {trigger:'axis',backgroundColor:'#0a1220',borderColor:'#1a2740',
+  textStyle:{color:'#e6edf7',fontSize:10.5},axisPointer:{lineStyle:{color:'#00e5ff'}}};
+const AX = {axisLine:{lineStyle:{color:'#1a2740'}},axisTick:{show:false},
+  axisLabel:{color:'#5e6d85',fontSize:9},splitLine:{lineStyle:{color:'#0f1829'}}};
+const GRID = {left:'8%',right:'5%',top:'12%',bottom:'14%'};
+const glow = (color, size=10) => ({shadowBlur:size, shadowColor:color});
+
+/* ============================================================
+   3. CATEGORY A — LINE / TRACE / CHAIN (1-20)
+   ============================================================ */
+const LINE_CHARTS = [
+  // 1. Fund Flow Line (multi-series)
+  {t:'Fund Flow Multi-Line', init:c=>c.setOption({...BASE,tooltip:TTX,grid:GRID,
+    legend:{top:4,textStyle:{color:'#5e6d85',fontSize:9},itemWidth:10,itemHeight:6},
+    xAxis:{...AX,type:'category',data:TL,boundaryGap:false},
+    yAxis:{...AX,type:'value'},
+    series:['inflow','outflow','whale','bot'].map((k,i)=>({
+      name:k.toUpperCase(),type:'line',smooth:true,showSymbol:false,
+      data:TS[k],lineStyle:{width:1.8,color:ACTOR_ARR[i]},
+      areaStyle:{opacity:.08,color:ACTOR_ARR[i]}
+    }))})},
+
+  // 2. Transaction Path (directed polyline)
+  {t:'Directed Transaction Path', init:c=>{
+    const N=40; const data=[], links=[];
+    for(let i=0;i<N;i++){
+      data.push({id:'p'+i, name:'', x:i*(700/N)+30, y:150+Math.sin(i*.5)*60+rnd(-15,15),
+        symbolSize:8, itemStyle:{color:ACTOR_ARR[i%8],...glow(ACTOR_ARR[i%8],10)}});
+    }
+    for(let i=0;i<N-1;i++) links.push({source:'p'+i,target:'p'+(i+1),
+      lineStyle:{color:ACTOR_ARR[i%8],width:1.5,opacity:.7}});
+    c.setOption({...BASE,tooltip:TT,
+      xAxis:{type:'value',show:false,min:0,max:750},
+      yAxis:{type:'value',show:false,min:0,max:300},
+      series:[{type:'graph',layout:'none',data,links,roam:true,
+        lineStyle:{curveness:.1},label:{show:false}}]});
+  }},
+
+  // 3. Alluvial Multi-stage
+  {t:'Alluvial Multi-Stage Flow', init:c=>{
+    const stages=5, per=6, ns=[], ls=[];
+    for(let s=0;s<stages;s++) for(let p=0;p<per;p++)
+      ns.push({name:'S'+s+'P'+p,itemStyle:{color:ACTOR_ARR[(s*per+p)%12]}});
+    for(let s=0;s<stages-1;s++) for(let p=0;p<per;p++) for(let k=0;k<2;k++)
+      ls.push({source:'S'+s+'P'+p,target:'S'+(s+1)+'P'+rndi(0,per),value:rndi(10,100)});
+    c.setOption({...BASE,tooltip:TT,
+      series:[{type:'sankey',left:'2%',right:'2%',top:'5%',bottom:'5%',
+        nodeWidth:8,nodeGap:3,nodeAlign:'justify',data:ns,links:ls,
+        label:{show:false},lineStyle:{color:'gradient',opacity:.4,curveness:.5}}]});
+  }},
+
+  // 4. Sankey Complex
+  {t:'Sankey Money Flow', init:c=>{
+    const src=['Attacker','Mixer','Darknet','Whale','Bot'];
+    const mid=['Bridge','Mixer2','DeFi'];
+    const dst=['Exchange','Cold Storage','Law Enforcement','Unknown'];
+    const ns=[...new Set([...src,...mid,...dst])].map(n=>({
+      name:n, itemStyle:{color:ACTORS[n]||ACTOR_ARR[rndi(0,12)]}}));
+    const ls=[];
+    src.forEach(s=>mid.forEach(m=>ls.push({source:s,target:m,value:rndi(30,400)})));
+    mid.forEach(m=>dst.forEach(d=>ls.push({source:m,target:d,value:rndi(20,300)})));
+    c.setOption({...BASE,tooltip:TT,
+      series:[{type:'sankey',left:'4%',right:'12%',top:'5%',bottom:'5%',
+        nodeWidth:12,nodeGap:7,nodeAlign:'justify',
+        data:ns,links:ls,label:{color:'#e6edf7',fontSize:9},
+        lineStyle:{color:'gradient',opacity:.4,curveness:.5},
+        emphasis:{focus:'adjacency'}}]});
+  }},
+
+  // 5. Arc Diagram
+  {t:'Arc Diagram Chain', init:c=>{
+    const N=50, data=[], links=[];
+    for(let i=0;i<N;i++){
+      data.push({id:'a'+i,name:nodes[i].id.slice(0,5),x:i*14+20,y:150,
+        symbolSize:5+nodes[i].degree/60,itemStyle:{color:ACTORS[nodes[i].type]}});
+    }
+    for(let i=0;i<70;i++){const a=rndi(0,N),b=rndi(0,N);
+      if(a!==b)links.push({source:'a'+a,target:'a'+b});}
+    c.setOption({...BASE,tooltip:TT,
+      xAxis:{type:'value',show:false,min:0,max:750},
+      yAxis:{type:'value',show:false,min:0,max:300},
+      series:[{type:'graph',layout:'none',data,links,roam:true,
+        lineStyle:{color:'#2a3a55',curveness:.6,width:.6},label:{show:false}}]});
+  }},
+
+  // 6. Bezier Edge Bundling
+  {t:'Bezier Edge Bundling', init:c=>{
+    const N=60, data=[];
+    for(let i=0;i<N;i++){
+      const ang=(i/N)*Math.PI*2;
+      data.push({id:'b'+i,name:'',x:Math.cos(ang)*150,y:Math.sin(ang)*150,
+        symbolSize:5,itemStyle:{color:ACTORS[nodes[i].type]}});
+    }
+    const links=[];
+    for(let i=0;i<90;i++){const a=rndi(0,N),b=rndi(0,N);
+      if(a!==b)links.push({source:'b'+a,target:'b'+b,
+        lineStyle:{color:ACTORS[nodes[a].type],width:.5,opacity:.5,curveness:.7}});}
+    c.setOption({...BASE,tooltip:TT,
+      xAxis:{type:'value',show:false,min:-200,max:200},
+      yAxis:{type:'value',show:false,min:-200,max:200},
+      series:[{type:'graph',layout:'none',data,links,roam:true,label:{show:false}}]});
+  }},
+
+  // 7. Time-Ordered Chain
+  {t:'Time-Ordered Chain', init:c=>{
+    const N=24, data=[], links=[];
+    for(let i=0;i<N;i++){
+      data.push({id:'t'+i,name:'',x:i*30+30,y:150+Math.sin(i/2)*50,
+        symbolSize:8+Math.random()*12,
+        itemStyle:{color:ACTOR_ARR[i%12],...glow(ACTOR_ARR[i%12],10)}});
+    }
+    for(let i=0;i<N-1;i++) links.push({source:'t'+i,target:'t'+(i+1),
+      lineStyle:{color:'#00e5ff',width:1.4,curveness:.15,opacity:.7}});
+    c.setOption({...BASE,tooltip:TT,
+      xAxis:{type:'value',show:false,min:0,max:800},
+      yAxis:{type:'value',show:false,min:0,max:300},
+      series:[{type:'graph',layout:'none',data,links,roam:true,label:{show:false}}]});
+  }},
+
+  // 8. Parallel Timelines
+  {t:'Parallel Timelines', init:c=>{
+    c.setOption({...BASE,tooltip:TTX,grid:GRID,
+      xAxis:{...AX,type:'category',data:TL},
+      yAxis:{...AX,type:'value'},
+      series:['attacker','victim','whale','bot','inflow'].map((k,i)=>({
+        name:k,type:'line',smooth:true,showSymbol:false,
+        data:TS[k],lineStyle:{width:1.5,color:ACTOR_ARR[i]}
+      }))});
+  }},
+
+  // 9. Cross-Chain Bridge Flow
+  {t:'Cross-Chain Bridge Flow', init:c=>{
+    const chains=['ETH','BSC','POL','ARB','OP','SOL'];
+    const data=[], links=[];
+    chains.forEach((ch,i)=>{
+      data.push({id:ch,name:ch,x:i*130+60,y:150,symbolSize:24,
+        itemStyle:{color:ACTOR_ARR[i],...glow(ACTOR_ARR[i],15)},
+        label:{show:true,fontSize:10,color:'#e6edf7',fontWeight:'bold'}});
+    });
+    for(let i=0;i<chains.length;i++) for(let j=0;j<chains.length;j++){
+      if(i!==j&&Math.random()>.5) links.push({source:chains[i],target:chains[j],
+        lineStyle:{color:ACTOR_ARR[i],width:rnd(.5,3),opacity:.5,curveness:.3}});
+    }
+    c.setOption({...BASE,tooltip:TT,
+      xAxis:{type:'value',show:false,min:0,max:800},
+      yAxis:{type:'value',show:false,min:0,max:300},
+      series:[{type:'graph',layout:'none',data,links,roam:true}]});
+  }},
+
+  // 10. Streaming Line (Live)
+  {t:'Streaming Line (Live)', dynamic:true, init:c=>{
+    const N=60;
+    c._buf = Array.from({length:N},()=>rnd(0,100));
+    c.setOption({...BASE,tooltip:TTX,grid:{left:'5%',right:'5%',top:'8%',bottom:'8%'},
+      xAxis:{...AX,type:'category',data:Array.from({length:N},(_,i)=>i)},
+      yAxis:{...AX,type:'value',min:0,max:100},
+      series:[{type:'line',smooth:true,showSymbol:false,data:c._buf,
+        lineStyle:{color:'#00e5ff',width:2},
+        areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[
+          {offset:0,color:'rgba(0,229,255,.5)'},{offset:1,color:'rgba(0,229,255,0)'}])}}]});
+  }},
+
+  // 11. Ribbon Flow
+  {t:'Ribbon Flow Chart', init:c=>{
+    const N=8, series=[];
+    for(let s=0;s<N;s++){
+      series.push({type:'line',smooth:true,showSymbol:false,stack:'r',
+        data:TL.map(()=>rnd(10,60)),
+        lineStyle:{width:0}, areaStyle:{opacity:.85,color:ACTOR_ARR[s]}});
+    }
+    c.setOption({...BASE,tooltip:TTX,grid:{left:'3%',right:'3%',top:'5%',bottom:'5%'},
+      xAxis:{...AX,type:'category',data:TL,show:false},
+      yAxis:{...AX,type:'value',show:false},
+      series});
+  }},
+
+  // 12. Slope Graph
+  {t:'Slope Graph (Before/After)', init:c=>{
+    const N=8, series=[];
+    ACTOR_ARR.slice(0,N).forEach((color,i)=>{
+      const a=rnd(10,90), b=rnd(10,90);
+      series.push({type:'line',data:[a,b],symbol:'circle',symbolSize:10,
+        lineStyle:{color,width:2}, itemStyle:{color},
+        label:{show:true,formatter:p=>p.value.toFixed(0),color:'#e6edf7',fontSize:9}});
+    });
+    c.setOption({...BASE,tooltip:TT,
+      xAxis:{...AX,type:'category',data:['Pre-Hack','Post-Hack']},
+      yAxis:{...AX,type:'value'},
+      series});
+  }},
+
+  // 13. Step Chart
+  {t:'Step Chart (Risk Jump)', init:c=>c.setOption({...BASE,tooltip:TTX,grid:GRID,
+    xAxis:{...AX,type:'category',data:TL},
+    yAxis:{...AX,type:'value'},
+    series:[{type:'line',step:'middle',smooth:false,showSymbol:false,
+      data:TS.risk,lineStyle:{color:'#ff4757',width:1.8},
+      areaStyle:{color:'rgba(255,71,87,.15)'}}]})},
+
+  // 14. Bump Chart (Rank)
+  {t:'Bump Chart (Actor Rank)', init:c=>{
+    const N=6, series=[];
+    for(let a=0;a<N;a++){
+      const base=rnd(1,6);
+      series.push({type:'line',smooth:true,data:TL.map((_,i)=>
+        1+Math.abs(Math.sin((i+a*3)/8))*5),
+        lineStyle:{width:2.5,color:ACTOR_ARR[a]},
+        itemStyle:{color:ACTOR_ARR[a]},symbol:'circle',symbolSize:4,showSymbol:false});
+    }
+    c.setOption({...BASE,tooltip:TTX,grid:GRID,
+      xAxis:{...AX,type:'category',data:TL},
+      yAxis:{...AX,type:'value',inverse:true,min:1,max:6},
+      series});
+  }},
+
+  // 15. Connected Scatter
+  {t:'Connected Scatter Path', init:c=>{
+    const data=[];
+    for(let i=0;i<40;i++) data.push([rnd(0,100),rnd(0,100)]);
+    c.setOption({...BASE,tooltip:TT,grid:GRID,
+      xAxis:{...AX,type:'value',name:'Risk',nameTextStyle:{color:'#5e6d85',fontSize:9}},
+      yAxis:{...AX,type:'value',name:'Balance',nameTextStyle:{color:'#5e6d85',fontSize:9}},
+      series:[{type:'line',data,smooth:true,symbol:'circle',symbolSize:7,
+        lineStyle:{color:'#00e5ff',width:1.2,opacity:.6},
+        itemStyle:{color:'#ff2e9a',...glow('#ff2e9a',10)}}]});
+  }},
+
+  // 16. Gradient Line
+  {t:'Gradient Line Chart', init:c=>c.setOption({...BASE,tooltip:TTX,grid:GRID,
+    xAxis:{...AX,type:'category',data:TL},
+    yAxis:{...AX,type:'value'},
+    series:[{type:'line',smooth:true,showSymbol:false,data:TS.price,
+      lineStyle:{width:2.5,color:new echarts.graphic.LinearGradient(0,0,1,0,[
+        {offset:0,color:'#00e5ff'},{offset:.5,color:'#a55eea'},{offset:1,color:'#ff2e9a'}])},
+      areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[
+        {offset:0,color:'rgba(0,229,255,.35)'},{offset:1,color:'rgba(0,229,255,0)'}])}}]})},
+
+  // 17. Multi-Line Comparison
+  {t:'Multi-Line Comparison', init:c=>c.setOption({...BASE,tooltip:TTX,grid:GRID,
+    legend:{top:2,textStyle:{color:'#5e6d85',fontSize:9},itemWidth:8,itemHeight:5},
+    xAxis:{...AX,type:'category',data:TL},
+    yAxis:{...AX,type:'value'},
+    series:['inflow','outflow','whale','bot','attacker'].map((k,i)=>({
+      name:k,type:'line',smooth:true,showSymbol:false,
+      data:TS[k],lineStyle:{width:1.5,color:ACTOR_ARR[i]}}))})},
+
+  // 18. Radial Line
+  {t:'Radial Line Chart', init:c=>{
+    const data=[];
+    for(let i=0;i<60;i++) data.push(rnd(20,100));
+    c.setOption({...BASE,tooltip:TT,
+      polar:{center:['50%','50%'],radius:'70%'},
+      angleAxis:{type:'category',data:Array.from({length:60},(_,i)=>i),
+        axisLabel:{color:'#5e6d85',fontSize:7},axisLine:{lineStyle:{color:'#1a2740'}}},
+      radiusAxis:{axisLine:{lineStyle:{color:'#1a2740'}},splitLine:{lineStyle:{color:'#0f1829'}},
+        axisLabel:{color:'#5e6d85',fontSize:8}},
+      series:[{type:'line',coordinateSystem:'polar',data,smooth:true,
+        lineStyle:{color:'#00e5ff',width:1.5},
+        areaStyle:{color:'rgba(0,229,255,.15)'},symbol:'circle',symbolSize:4}]});
+  }},
+
+  // 19. Spiral Timeline
+  {t:'Spiral Timeline', init:c=>{
+    const N=120, data=[];
+    for(let i=0;i<N;i++){
+      const t=i/N, ang=t*Math.PI*8, r=20+t*150;
+      data.push({value:[Math.cos(ang)*r,Math.sin(ang)*r,i],
+        itemStyle:{color:ACTOR_ARR[i%12]},symbolSize:6});
+    }
+    c.setOption({...BASE,tooltip:TT,
+      xAxis:{type:'value',show:false,min:-200,max:200},
+      yAxis:{type:'value',show:false,min:-200,max:200},
+      series:[{type:'scatter',data}]});
+  }},
+
+  // 20. 3D Line Trajectory
+  {t:'3D Line Trajectory', init:c=>{
+    const data=[];
+    for(let i=0;i<80;i++) data.push([rnd(-100,100),rnd(-100,100),rnd(-100,100)]);
+    c.setOption({backgroundColor:'transparent',
+      xAxis3D:{type:'value',show:false},yAxis3D:{type:'value',show:false},zAxis3D:{type:'value',show:false},
+      grid3D:{show:false,boxWidth:150,boxDepth:150,boxHeight:150},
+      series:[{type:'line3D',data,lineStyle:{color:'#00e5ff',width:3},
+        viewControl:{autoRotate:true,autoRotateSpeed:4,distance:250}}]});
+  }}
+];
+
+/* ============================================================
+   4. CATEGORY B — POINT / NODE (21-40)
+   ============================================================ */
+const POINT_CHARTS = [
+  // 21. Scatter 2D
+  {t:'Scatter 2D Risk vs Balance', init:c=>c.setOption({...BASE,tooltip:TT,grid:GRID,
+    xAxis:{...AX,type:'value',name:'Risk'},yAxis:{...AX,type:'value',name:'Balance'},
+    series:[{type:'scatter',symbolSize:6,
+      data:nodes.slice(0,300).map(n=>({value:[n.risk,n.balance],
+        itemStyle:{color:ACTORS[n.type],opacity:.7}}))}]})},
+
+  // 22. Bubble Chart
+  {t:'Bubble Chart (3D Info)', init:c=>c.setOption({...BASE,tooltip:TT,grid:GRID,
+    xAxis:{...AX,type:'value',name:'TX'},yAxis:{...AX,type:'value',name:'Balance'},
+    series:[{type:'scatter',
+      data:nodes.slice(0,150).map(n=>({value:[n.txCount,n.balance,n.risk],
+        itemStyle:{color:ACTORS[n.type],opacity:.75,...glow(ACTORS[n.type],6)}})),
+      symbolSize:d=>Math.sqrt(d[2])/1.2+4}]})},
+
+  // 23. Effect Scatter (Pulsing)
+  {t:'Effect Scatter Pulsing', init:c=>{
+    const data = nodes.slice(0,120).map(n=>({
+      value:[n.lng,n.lat,n.balance],itemStyle:{color:ACTORS[n.type]},
+      symbolSize:4+Math.sqrt(n.balance)/25
+    }));
+    c.setOption({...BASE,tooltip:TT,
+      xAxis:{type:'value',show:false,min:-180,max:180},
+      yAxis:{type:'value',show:false,min:-70,max:80},
+      series:[{type:'effectScatter',data,rippleEffect:{scale:3,brushType:'stroke'},
+        blendMode:'lighter'}]});
+  }},
+
+  // 24. Categorical Scatter
+  {t:'Categorical Scatter', init:c=>c.setOption({...BASE,tooltip:TT,grid:GRID,
+    xAxis:{...AX,type:'category',data:CATS,axisLabel:{color:'#5e6d85',fontSize:8,rotate:30}},
+    yAxis:{...AX,type:'value'},
+    series:CATS.map((t,i)=>({
+      type:'scatter',name:t,
+      data:nodes.filter(n=>n.type===t).slice(0,30).map(n=>[t,n.risk]),
+      symbolSize:8,itemStyle:{color:ACTORS[t],opacity:.7}
+    }))})},
+
+  // 25. Geo Scatter
+  {t:'Geo Scatter World', init:c=>{
+    const data = nodes.slice(0,300).map(n=>({value:[n.lng,n.lat,n.balance],
+      itemStyle:{color:ACTORS[n.type]},symbolSize:4+Math.sqrt(n.balance)/30}));
+    c.setOption({...BASE,tooltip:TT,
+      xAxis:{type:'value',show:false,min:-180,max:180},
+      yAxis:{type:'value',show:false,min:-70,max:80},
+      series:[
+        {type:'scatter',data:WORLD_DOTS.map(([a,b])=>({value:[a,b]})),
+          symbolSize:2,itemStyle:{color:'#142850',opacity:.8},silent:true,animation:false},
+        {type:'scatter',data,blendMode:'lighter'}
+      ]});
+  }},
+
+  // 26. 3D Scatter
+  {t:'3D Scatter Clusters', init:c=>c.setOption({backgroundColor:'transparent',
+    xAxis3D:{type:'value',name:'TX',axisLabel:{color:'#5e6d85',fontSize:8}},
+    yAxis3D:{type:'value',name:'Risk',axisLabel:{color:'#5e6d85',fontSize:8}},
+    zAxis3D:{type:'value',name:'Bal',axisLabel:{color:'#5e6d85',fontSize:8}},
+    grid3D:{boxWidth:100,boxDepth:100,boxHeight:80,axisLine:{lineStyle:{color:'#2a3a55'}},
+      splitLine:{lineStyle:{color:'#0f1829'}}},
+    series:[{type:'scatter3D',
+      data:nodes.slice(0,200).map(n=>[n.txCount,n.risk,n.balance,n.cluster]),
+      symbolSize:4,
+      itemStyle:{color:p=>ACTOR_ARR[p.data[3]%12],opacity:.85}}]})},
+
+  // 27. Hexbin Density
+  {t:'Hexbin Point Density', init:c=>{
+    const data = nodes.map(n=>[n.lng,n.lat]);
+    c.setOption({...BASE,tooltip:TT,
+      xAxis:{type:'value',show:false,min:-180,max:180},
+      yAxis:{type:'value',show:false,min:-70,max:80},
+      visualMap:{min:0,max:20,show:false,inRange:{color:['#0a1220','#00e5ff','#a55eea','#ff2e9a']}},
+      series:[{type:'heatmap',data:data.map(([a,b])=>[a,b,1]),
+        pointSize:10,blurSize:12}]});
+  }},
+
+  // 28. Point Cloud 3D
+  {t:'3D Point Cloud', init:c=>{
+    const data = Array.from({length:600},()=>[rnd(-100,100),rnd(-100,100),rnd(-100,100)]);
+    c.setOption({backgroundColor:'transparent',
+      xAxis3D:{type:'value',show:false},yAxis3D:{type:'value',show:false},zAxis3D:{type:'value',show:false},
+      grid3D:{show:false,boxWidth:150,boxDepth:150,boxHeight:150},
+      series:[{type:'scatter3D',data,symbolSize:3,
+        itemStyle:{color:'#00e5ff',opacity:.7},blendMode:'lighter',
+        viewControl:{autoRotate:true,autoRotateSpeed:5,distance:250}}]});
+  }},
+
+  // 29. Polar Scatter
+  {t:'Polar Scatter', init:c=>{
+    const data = nodes.slice(0,200).map((n,i)=>[i*1.8, n.risk, n.balance]);
+    c.setOption({...BASE,tooltip:TT,
+      polar:{center:['50%','50%'],radius:'70%'},
+      angleAxis:{type:'value',startAngle:0,axisLabel:{color:'#5e6d85',fontSize:7}},
+      radiusAxis:{axisLabel:{color:'#5e6d85',fontSize:7},splitLine:{lineStyle:{color:'#0f1829'}}},
+      series:[{type:'scatter',coordinateSystem:'polar',data,
+        symbolSize:d=>Math.sqrt(d[2])/25+3,
+        itemStyle:{color:'#ff2e9a',...glow('#ff2e9a',8)}}]});
+  }},
+
+  // 30. Symbol Scatter (custom)
+  {t:'Custom Symbol Scatter', init:c=>{
+    const symbols=['circle','rect','roundRect','triangle','diamond','pin','arrow'];
+    const data = CATS.map((t,i)=>({
+      name:t,value:[rnd(20,80),rnd(20,80)],
+      symbol:symbols[i%symbols.length],
+      symbolSize:16,
+      itemStyle:{color:ACTORS[t],...glow(ACTORS[t],10)}
+    }));
+    c.setOption({...BASE,tooltip:TT,grid:GRID,
+      xAxis:{...AX,type:'value'},yAxis:{...AX,type:'value'},
+      series:[{type:'scatter',data,label:{show:true,formatter:'{b}',
+        position:'top',fontSize:9,color:'#e6edf7'}}]});
+  }},
+
+  // 31. Rule-based Scatter
+  {t:'Rule-Based Scatter', init:c=>{
+    const data = nodes.slice(0,80).map(n=>({value:[n.txCount,n.balance],
+      itemStyle:{color:n.risk>70?'#ff4757':n.risk>40?'#ffa502':'#2ed573'}}));
+    c.setOption({...BASE,tooltip:TT,grid:GRID,
+      xAxis:{...AX,type:'value',name:'TX'},
+      yAxis:{...AX,type:'value',name:'Balance'},
+      series:[{type:'scatter',data,symbolSize:8}]});
+  }},
+
+  // 32. Cluster Scatter
+  {t:'Cluster Scatter (K-means)', init:c=>{
+    const centers=[[10,20],[40,60],[70,30],[30,90],[85,80]];
+    const data=[];
+    centers.forEach((ct,ci)=>{
+      for(let i=0;i<40;i++) data.push({value:[ct[0]+rnd(-8,8),ct[1]+rnd(-8,8)],
+        itemStyle:{color:ACTOR_ARR[ci]}});
+    });
+    c.setOption({...BASE,tooltip:TT,grid:GRID,
+      xAxis:{...AX,type:'value'},yAxis:{...AX,type:'value'},
+      series:[{type:'scatter',data,symbolSize:7,blendMode:'lighter'}]});
+  }},
+
+  // 33. Voronoi
+  {t:'Voronoi Partition', init:c=>{
+    const data = nodes.slice(0,50).map(n=>({
+      name:n.id.slice(0,5),value:[rnd(0,100),rnd(0,100)],
+      itemStyle:{color:ACTORS[n.type],opacity:.5}
+    }));
+    c.setOption({...BASE,tooltip:TT,grid:GRID,
+      xAxis:{...AX,type:'value',show:false},yAxis:{...AX,type:'value',show:false},
+      series:[{type:'custom',renderItem:(p,api)=>{
+        const pt = api.coord(api.value(0));
+        return {type:'circle',shape:{cx:pt[0],cy:pt[1],r:30},
+          style:api.style({opacity:.4})};
+      },encode:{x:0,y:1},data:data.map(d=>({value:d.value,itemStyle:d.itemStyle}))},
+        {type:'scatter',data,symbolSize:6,itemStyle:{color:'#fff'}}]});
+  }},
+
+  // 34. Delaunay Triangulation
+  {t:'Delaunay Triangulation', init:c=>{
+    const pts = nodes.slice(0,40).map(n=>[rnd(20,80),rnd(20,80)]);
+    const tri=[];
+    for(let i=0;i<40;i++) for(let j=i+1;j<40;j++) for(let k=j+1;k<40;k++){
+      if(Math.random()>.98) tri.push([pts[i],pts[j],pts[k]]);
+    }
+    c.setOption({...BASE,tooltip:TT,grid:GRID,
+      xAxis:{...AX,type:'value',show:false,min:0,max:100},
+      yAxis:{...AX,type:'value',show:false,min:0,max:100},
+      series:tri.map(t=>({type:'line',data:[t[0],t[1],t[2],t[0]],
+        lineStyle:{color:'#00e5ff',width:.6,opacity:.5},showSymbol:false,silent:true}))});
+  }},
+
+  // 35. Stream Graph (Points)
+  {t:'Stream Graph Points', init:c=>{
+    const data=[];
+    for(let i=0;i<200;i++){
+      data.push([rnd(0,100),rnd(0,100),rnd(1,5)]);
+    }
+    c.setOption({...BASE,tooltip:TT,grid:GRID,
+      xAxis:{...AX,type:'value'},yAxis:{...AX,type:'value'},
+      series:[{type:'scatter',data:data.map(d=>({value:d,
+        itemStyle:{color:ACTOR_ARR[Math.floor(d[2])],opacity:.7}})),
+        symbolSize:8}]});
+  }},
+
+  // 36. Beeswarm
+  {t:'Beeswarm Plot', init:c=>{
+    const data = CATS.map((t,i)=>{
+      const arr=[];
+      for(let k=0;k<20;k++) arr.push([i+rnd(-.3,.3), rnd(0,100)]);
+      return arr;
+    }).flat();
+    c.setOption({...BASE,tooltip:TT,grid:GRID,
+      xAxis:{...AX,type:'value',min:-.5,max:CATS.length-.5,
+        axisLabel:{color:'#5e6d85',fontSize:8,formatter:v=>CATS[Math.round(v)]||''}},
+      yAxis:{...AX,type:'value'},
+      series:[{type:'scatter',data,symbolSize:6,
+        itemStyle:{color:p=>ACTORS[CATS[Math.round(p.value[0])]]||'#00e5ff'}}]});
+  }},
+
+  // 37. Strip Plot
+  {t:'Strip Plot', init:c=>{
+    const data = CATS.map((t,i)=>({
+      type:'scatter',name:t,
+      data:nodes.filter(n=>n.type===t).slice(0,20).map(n=>[i,n.risk]),
+      symbolSize:7,itemStyle:{color:ACTORS[t],opacity:.8}
+    }));
+    c.setOption({...BASE,tooltip:TT,grid:GRID,
+      xAxis:{...AX,type:'value',min:-.5,max:CATS.length-.5,
+        axisLabel:{color:'#5e6d85',fontSize:8,formatter:v=>CATS[Math.round(v)]||''}},
+      yAxis:{...AX,type:'value'},
+      series:data});
+  }},
+
+  // 38. Jitter Plot
+  {t:'Jitter Plot', init:c=>{
+    const data=[];
+    for(let i=0;i<150;i++) data.push([rnd(20,80),rnd(20,80)]);
+    c.setOption({...BASE,tooltip:TT,grid:GRID,
+      xAxis:{...AX,type:'value'},yAxis:{...AX,type:'value'},
+      series:[{type:'scatter',data,symbolSize:5,
+        itemStyle:{color:'#00e5ff',opacity:.6}}]});
+  }},
+
+  // 39. Point Matrix
+  {t:'Point Matrix Grid', init:c=>{
+    const data=[];
+    for(let x=0;x<20;x++) for(let y=0;y<15;y++)
+      if(Math.random()>.6) data.push({value:[x,y,rnd(20,100)],
+        itemStyle:{color:ACTOR_ARR[Math.floor(rnd(0,12))]}});
+    c.setOption({...BASE,tooltip:TT,grid:GRID,
+      xAxis:{...AX,type:'value',show:false,min:-.5,max:20},
+      yAxis:{...AX,type:'value',show:false,min:-.5,max:15},
+      series:[{type:'scatter',data,symbolSize:d=>d.value[2]/8+4}]});
+  }},
+
+  // 40. Ripple Effect
+  {t:'Ripple Effect Scatter', init:c=>{
+    const data = Array.from({length:80},()=>({value:[rnd(0,100),rnd(0,100)],
+      itemStyle:{color:ACTOR_ARR[Math.floor(rnd(0,12))]}}));
+    c.setOption({...BASE,tooltip:TT,grid:GRID,
+      xAxis:{...AX,type:'value',show:false},yAxis:{...AX,type:'value',show:false},
+      series:[{type:'effectScatter',data,rippleEffect:{scale:4,brushType:'stroke'},
+        symbolSize:7}]});
+  }}
+];
+
+/* ============================================================
+   5. CATEGORY C — AREA / REGION (41-60)
+   ============================================================ */
+const AREA_CHARTS = [
+  // 41. Stacked Area
+  {t:'Stacked Area Chart', init:c=>c.setOption({...BASE,tooltip:TTX,grid:GRID,
+    legend:{top:2,textStyle:{color:'#5e6d85',fontSize:9},itemWidth:8,itemHeight:5},
+    xAxis:{...AX,type:'category',data:TL,boundaryGap:false},
+    yAxis:{...AX,type:'value'},
+    series:['inflow','outflow','whale','bot'].map((k,i)=>({
+      name:k,type:'line',stack:'s',smooth:true,showSymbol:false,
+      data:TS[k],lineStyle:{width:0},areaStyle:{opacity:.75,color:ACTOR_ARR[i]}}))})},
+
+  // 42. Stream Graph (Area)
+  {t:'Stream Graph Area', init:c=>{
+    const series = ACTOR_ARR.slice(0,8).map((color,i)=>({
+      type:'line',smooth:true,showSymbol:false,stack:'s',data:TL.map(()=>rnd(10,50)),
+      lineStyle:{width:0},areaStyle:{opacity:.85,color}
+    }));
+    c.setOption({...BASE,tooltip:TTX,grid:{left:'2%',right:'2%',top:'3%',bottom:'3%'},
+      xAxis:{...AX,type:'category',data:TL,show:false},
+      yAxis:{...AX,type:'value',show:false},series});
+  }},
+
+  // 43. Gradient Area
+  {t:'Gradient Area Chart', init:c=>c.setOption({...BASE,tooltip:TTX,grid:GRID,
+    xAxis:{...AX,type:'category',data:TL,boundaryGap:false},
+    yAxis:{...AX,type:'value'},
+    series:[{type:'line',smooth:true,showSymbol:false,data:TS.whale,
+      lineStyle:{color:'#ff2e9a',width:2},
+      areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[
+        {offset:0,color:'rgba(255,46,154,.6)'},
+        {offset:.5,color:'rgba(165,94,234,.3)'},
+        {offset:1,color:'rgba(0,229,255,0)'}])}}]})},
+
+  // 44. Range Area
+  {t:'Range Area (Min-Max)', init:c=>{
+    const low=TL.map((_,i)=>20+Math.sin(i/8)*10);
+    const high=low.map(v=>v+15+Math.random()*10);
+    c.setOption({...BASE,tooltip:TTX,grid:GRID,
+      xAxis:{...AX,type:'category',data:TL,boundaryGap:false},
+      yAxis:{...AX,type:'value'},
+      series:[
+        {type:'line',data:low,lineStyle:{color:'transparent'},stack:'r',symbol:'none',
+          areaStyle:{color:'transparent'}},
+        {type:'line',data:high.map((v,i)=>v-low[i]),lineStyle:{color:'#00e5ff',width:1.5},
+          stack:'r',symbol:'none',areaStyle:{color:'rgba(0,229,255,.25)'}}
+      ]});
+  }},
+
+  // 45. Confidence Band
+  {t:'Confidence Band Chart', init:c=>{
+    const mid=TL.map((_,i)=>50+Math.sin(i/10)*20);
+    const delta=TL.map(()=>rnd(8,18));
+    c.setOption({...BASE,tooltip:TTX,grid:GRID,
+      xAxis:{...AX,type:'category',data:TL,boundaryGap:false},
+      yAxis:{...AX,type:'value'},
+      series:[
+        {type:'line',data:mid.map((v,i)=>v-delta[i]),lineStyle:{color:'transparent'},
+          stack:'c',symbol:'none',areaStyle:{color:'transparent'}},
+        {type:'line',data:delta.map(d=>d*2),lineStyle:{color:'transparent'},stack:'c',
+          symbol:'none',areaStyle:{color:'rgba(255,46,154,.2)'}},
+        {type:'line',data:mid,lineStyle:{color:'#ff2e9a',width:2},symbol:'none'}
+      ]});
+  }},
+
+  // 46. Heatmap
+  {t:'Heatmap Calendar-Style', init:c=>{
+    const data=[];
+    for(let x=0;x<30;x++) for(let y=0;y<12;y++)
+      data.push([x,y,rnd(0,100)]);
+    c.setOption({...BASE,tooltip:TT,grid:{left:'5%',right:'5%',top:'5%',bottom:'5%'},
+      xAxis:{...AX,type:'category',data:Array.from({length:30},(_,i)=>i),show:false},
+      yAxis:{...AX,type:'category',data:CATS,axisLabel:{color:'#5e6d85',fontSize:8}},
+      visualMap:{min:0,max:100,show:false,
+        inRange:{color:['#0a1220','#00e5ff','#a55eea','#ff2e9a']}},
+      series:[{type:'heatmap',data,itemStyle:{borderColor:'#03060d',borderWidth:1}}]});
+  }},
+
+  // 47. Hexbin Heatmap
+  {t:'Hexbin Heatmap', init:c=>{
+    const data = Array.from({length:400},()=>[rnd(-180,180),rnd(-70,80),rnd(1,5)]);
+    c.setOption({...BASE,tooltip:TT,
+      xAxis:{type:'value',show:false,min:-180,max:180},
+      yAxis:{type:'value',show:false,min:-70,max:80},
+      visualMap:{min:0,max:5,show:false,inRange:{color:['#0a1220','#2ed573','#ffd93d','#ff2e9a']}},
+      series:[{type:'heatmap',data,pointSize:12,blurSize:14}]});
+  }},
+
+  // 48. Contour Map
+  {t:'Contour Map', init:c=>{
+    const data=[];
+    for(let x=0;x<40;x++) for(let y=0;y<30;y++)
+      data.push([x,y,Math.abs(Math.sin(x/5)*Math.cos(y/4))*50+Math.random()*20]);
+    c.setOption({...BASE,tooltip:TT,grid:{left:0,right:0,top:0,bottom:0},
+      xAxis:{type:'value',show:false},yAxis:{type:'value',show:false},
+      visualMap:{min:0,max:70,show:false,
+        inRange:{color:['#03060d','#0a2a4a','#00e5ff','#ff2e9a']}},
+      series:[{type:'heatmap',data,pointSize:14,blurSize:16}]});
+  }},
+
+  // 49. Density Contour
+  {t:'Density Contour Map', init:c=>{
+    const pts = Array.from({length:800},()=>{
+      const cx=[30,70,50][Math.floor(Math.random()*3)];
+      return [cx+rnd(-15,15), 50+rnd(-25,25)];
+    });
+    c.setOption({...BASE,tooltip:TT,grid:{left:0,right:0,top:0,bottom:0},
+      xAxis:{type:'value',show:false,min:0,max:100},
+      yAxis:{type:'value',show:false,min:0,max:100},
+      visualMap:{min:0,max:8,show:false,
+        inRange:{color:['#0a1220','#2ed573','#ffd93d','#ff4757']}},
+      series:[{type:'heatmap',data:pts.map(p=>[p[0],p[1],1]),
+        pointSize:9,blurSize:11}]});
+  }},
+
+  // 50. Geo Heatmap
+  {t:'Geo Heatmap World', init:c=>{
+    const data=nodes.slice(0,400).map(n=>[n.lng,n.lat,n.balance/100]);
+    c.setOption({...BASE,tooltip:TT,
+      xAxis:{type:'value',show:false,min:-180,max:180},
+      yAxis:{type:'value',show:false,min:-70,max:80},
+      visualMap:{min:0,max:500,show:false,
+        inRange:{color:['#03060d','#0a2a4a','#00e5ff','#a55eea','#ff2e9a']}},
+      series:[
+        {type:'scatter',data:WORLD_DOTS.map(([a,b])=>({value:[a,b]})),
+          symbolSize:2,itemStyle:{color:'#142850',opacity:.7},silent:true,animation:false},
+        {type:'heatmap',data,pointSize:8,blurSize:10}
+      ]});
+  }},
+
+  // 51. Voronoi Area
+  {t:'Voronoi Area Map', init:c=>{
+    const data=[];
+    for(let i=0;i<80;i++) data.push([rnd(0,100),rnd(0,100)]);
+    c.setOption({...BASE,tooltip:TT,grid:{left:0,right:0,top:0,bottom:0},
+      xAxis:{...AX,type:'value',show:false,min:0,max:100},
+      yAxis:{...AX,type:'value',show:false,min:0,max:100},
+      series:[{type:'scatter',data,symbolSize:d=>40,
+        itemStyle:{color:()=>ACTOR_ARR[Math.floor(rnd(0,12))],opacity:.35}}]});
+  }},
+
+  // 52. Treemap
+  {t:'Treemap Entities', init:c=>{
+    const data = CATS.map(t=>({
+      name:t, value:catCount[CATS.indexOf(t)],
+      itemStyle:{color:ACTORS[t]},
+      children:Array.from({length:5},(_,i)=>({
+        name:t+'-'+i, value:rndi(10,80),
+        itemStyle:{color:ACTORS[t],opacity:.7-i*.1}}))
+    }));
+    c.setOption({...BASE,tooltip:TT,
+      series:[{type:'treemap',data,top:'3%',bottom:'3%',left:'3%',right:'3%',
+        label:{fontSize:9,color:'#fff'},breadcrumb:{show:false},
+        levels:[{itemStyle:{borderColor:'#03060d',borderWidth:2,gapWidth:2}},
+          {itemStyle:{borderColor:'#03060d',borderWidth:1}}]}]});
+  }},
+
+  // 53. Sunburst
+  {t:'Sunburst Hierarchy', init:c=>{
+    const data = CATS.map(t=>({
+      name:t, itemStyle:{color:ACTORS[t]},
+      children:Array.from({length:4},(_,i)=>({
+        name:t+'-'+i, value:rndi(10,60),
+        itemStyle:{color:ACTORS[t],opacity:.6-i*.1}}))
+    }));
+    c.setOption({...BASE,tooltip:TT,
+      series:[{type:'sunburst',data,radius:['12%','85%'],
+        label:{fontSize:9,color:'#e6edf7'},
+        itemStyle:{borderColor:'#03060d',borderWidth:2}}]});
+  }},
+
+  // 54. Sankey Area
+  {t:'Sankey Area Flow', init:c=>{
+    const ns=[...CATS.slice(0,4),...CATS.slice(4,8)].map(t=>({
+      name:t,itemStyle:{color:ACTORS[t]}}));
+    const ls=[];
+    CATS.slice(0,4).forEach(a=>CATS.slice(4,8).forEach(b=>{
+      if(Math.random()>.4) ls.push({source:a,target:b,value:rndi(20,150)});
+    }));
+    c.setOption({...BASE,tooltip:TT,
+      series:[{type:'sankey',top:'3%',bottom:'3%',left:'4%',right:'12%',
+        nodeWidth:12,nodeGap:8,data:ns,links:ls,
+        label:{color:'#e6edf7',fontSize:9},
+        lineStyle:{color:'gradient',opacity:.4,curveness:.5}}]});
+  }},
+
+  // 55. Chord Area
+  {t:'Chord Diagram Area', init:c=>{
+    const data = CATS.slice(0,8).map(t=>({
+      id:t,name:t,symbolSize:20,itemStyle:{color:ACTORS[t],...glow(ACTORS[t],12)},
+      label:{show:true,fontSize:8,color:'#e6edf7'}}));
+    const links=[];
+    CATS.slice(0,8).forEach((a,i)=>CATS.slice(0,8).forEach((b,j)=>{
+      if(i!==j) links.push({source:a,target:b,
+        lineStyle:{color:ACTORS[a],width:rnd(1,5),opacity:.4,curveness:.45}});
+    }));
+    c.setOption({...BASE,tooltip:TT,
+      series:[{type:'graph',layout:'circular',circular:{rotateLabel:true},
+        data,links,roam:true,
+        label:{show:true,position:'outside',fontSize:9,color:'#e6edf7'}}]});
+  }},
+
+  // 56. Radial Area
+  {t:'Radial Area Chart', init:c=>{
+    const data=Array.from({length:80},()=>rnd(20,100));
+    c.setOption({...BASE,tooltip:TT,
+      polar:{center:['50%','50%'],radius:'70%'},
+      angleAxis:{type:'category',data:Array.from({length:80},(_,i)=>i),
+        axisLabel:{color:'#5e6d85',fontSize:7},axisLine:{lineStyle:{color:'#1a2740'}}},
+      radiusAxis:{axisLabel:{color:'#5e6d85',fontSize:8},
+        splitLine:{lineStyle:{color:'#0f1829'}}},
+      series:[{type:'line',coordinateSystem:'polar',data,smooth:true,
+        lineStyle:{color:'#ff2e9a',width:1.5},
+        areaStyle:{color:'rgba(255,46,154,.25)'}}]});
+  }},
+
+  // 57. Bump Area
+  {t:'Bump Area Chart', init:c=>{
+    const series = ACTOR_ARR.slice(0,6).map((color,i)=>({
+      type:'line',smooth:true,showSymbol:false,data:TL.map((_,k)=>
+        30+Math.abs(Math.sin((k+i*5)/12))*60),
+      lineStyle:{color,width:2},
+      areaStyle:{color,opacity:.15}
+    }));
+    c.setOption({...BASE,tooltip:TTX,grid:GRID,
+      xAxis:{...AX,type:'category',data:TL,boundaryGap:false},
+      yAxis:{...AX,type:'value'},series});
+  }},
+
+  // 58. Horizon Chart
+  {t:'Horizon Chart', init:c=>{
+    const series = ACTOR_ARR.slice(0,5).map((color,i)=>({
+      type:'line',smooth:true,showSymbol:false,stack:'h',
+      data:TL.map((_,k)=>Math.max(0,Math.sin((k+i*3)/8))*50),
+      lineStyle:{width:0},areaStyle:{color,opacity:.7}
+    }));
+    c.setOption({...BASE,tooltip:TTX,grid:{left:'5%',right:'5%',top:'5%',bottom:'5%'},
+      xAxis:{...AX,type:'category',data:TL,show:false},
+      yAxis:{...AX,type:'value',show:false},series});
+  }},
+
+  // 59. Waterfall
+  {t:'Waterfall Chart', init:c=>{
+    const cats=['Start','In','Out','Fee','End'];
+    const values=[100,+80,-45,-15,0];
+    let running=100;
+    const data=[];
+    values.forEach((v,i)=>{
+      if(i===0||i===values.length-1) data.push(v);
+      else {data.push({value:v,itemStyle:{color:v>0?'#2ed573':'#ff4757'}});
+        running+=v;}
+    });
+    c.setOption({...BASE,tooltip:TTX,grid:GRID,
+      xAxis:{...AX,type:'category',data:cats},
+      yAxis:{...AX,type:'value'},
+      series:[
+        {type:'bar',stack:'w',data:[0,...values.slice(0,-1).map((_,i)=>
+          i===0?0:values.slice(0,i+1).reduce((a,b)=>a+b,100))].slice(0,5),
+          itemStyle:{color:'transparent'},silent:true},
+        {type:'bar',stack:'w',data,barWidth:'60%',
+          itemStyle:{color:'#00e5ff',borderRadius:[4,4,0,0]},
+          label:{show:true,position:'top',color:'#e6edf7',fontSize:9}}
+      ]});
+  }},
+
+  // 60. Funnel
+  {t:'Funnel Flow', init:c=>{
+    c.setOption({...BASE,tooltip:TT,
+      series:[{type:'funnel',left:'8%',right:'8%',top:'8%',bottom:'8%',
+        minSize:'15%',maxSize:'95%',gap:2,
+        label:{color:'#e6edf7',fontSize:9,position:'inside'},
+        itemStyle:{borderColor:'#03060d',borderWidth:1},
+        data:CATS.slice(0,8).map(t=>({name:t,value:rndi(30,200),
+          itemStyle:{color:ACTORS[t],opacity:.85}}))}]});
+  }}
+];
+
+/* ============================================================
+   6. CATEGORY D — NETWORK (61-80)
+   ============================================================ */
+const NETWORK_CHARTS = [
+  // 61. Force-Directed
+  {t:'Force-Directed Network', init:c=>{
+    const sample=nodes.slice(0,60);
+    const links=edges.filter(e=>sample.some(n=>n.id===e.source)&&sample.some(n=>n.id===e.target)).slice(0,90);
+    c.setOption({...BASE,tooltip:TT,
+      series:[{type:'graph',layout:'force',roam:true,draggable:true,
+        force:{repulsion:120,edgeLength:[20,60],gravity:.1},
+        data:sample.map(n=>({id:n.id,name:n.id.slice(0,5),
+          symbolSize:6+n.degree/40,itemStyle:{color:ACTORS[n.type],...glow(ACTORS[n.type],6)}})),
+        links:links.map(l=>({source:l.source,target:l.target})),
+        lineStyle:{color:'#2a3a55',width:.6,curveness:.2},
+        emphasis:{focus:'adjacency'}}]});
+  }},
+
+  // 62. Circular
+  {t:'Circular Network', init:c=>{
+    const sample=nodes.slice(0,70);
+    c.setOption({...BASE,tooltip:TT,
+      series:[{type:'graph',layout:'circular',circular:{rotateLabel:false},
+        data:sample.map(n=>({id:n.id,name:n.id.slice(0,5),
+          symbolSize:5+n.degree/50,itemStyle:{color:ACTORS[n.type]}})),
+        links:Array.from({length:80},()=>({source:sample[rndi(0,70)].id,target:sample[rndi(0,70)].id})),
+        roam:true,lineStyle:{color:'#2a3a55',width:.6,curveness:.3},label:{show:false}}]});
+  }},
+
+  // 63. Radial Tree
+  {t:'Radial Tree Hierarchy', init:c=>{
+    const build=(d,p)=>d===0?{name:p}:{name:p,children:Array.from({length:3},(_,i)=>build(d-1,p+'.'+(i+1)))};
+    const root={name:'ROOT',children:Array.from({length:5},(_,i)=>build(3,'B'+(i+1)))};
+    c.setOption({...BASE,tooltip:TT,
+      series:[{type:'tree',data:[root],layout:'radial',roam:true,symbolSize:6,
+        top:'5%',bottom:'5%',left:'5%',right:'5%',
+        label:{position:'right',fontSize:8,color:'#e6edf7'},
+        lineStyle:{color:'#2a3a55',width:.8,curveness:.5},
+        itemStyle:{color:'#00e5ff'},
+        emphasis:{focus:'descendant'}}]});
+  }},
+
+  // 64. Dendrogram
+  {t:'Dendrogram Clustering', init:c=>{
+    const build=(d,p)=>d===0?{name:p}:{name:p,children:Array.from({length:2},(_,i)=>build(d-1,p+'.'+(i+1)))};
+    const root={name:'Cluster',children:Array.from({length:6},(_,i)=>build(3,'G'+(i+1)))};
+    c.setOption({...BASE,tooltip:TT,
+      series:[{type:'tree',data:[root],orient:'LR',top:'5%',bottom:'5%',left:'10%',right:'15%',
+        symbolSize:5,expandAndCollapse:true,initialTreeDepth:4,
+        label:{position:'left',fontSize:8,color:'#e6edf7'},
+        lineStyle:{color:'#2a3a55',width:.8},
+        itemStyle:{color:p=>ACTOR_ARR[Math.floor(Math.random()*12)]}}]});
+  }},
+
+  // 65. Chord
+  {t:'Chord Diagram', init:c=>{
+    const data=CATS.slice(0,8).map(t=>({id:t,name:t,symbolSize:18,
+      itemStyle:{color:ACTORS[t],...glow(ACTORS[t],12)},
+      label:{show:true,fontSize:8,color:'#e6edf7'}}));
+    const links=[];
+    CATS.slice(0,8).forEach((a,i)=>CATS.slice(0,8).forEach((b,j)=>{
+      if(i!==j) links.push({source:a,target:b,
+        lineStyle:{color:ACTORS[a],width:rnd(1,5),opacity:.5,curveness:.45}});
+    }));
+    c.setOption({...BASE,tooltip:TT,
+      series:[{type:'graph',layout:'circular',circular:{rotateLabel:true},
+        data,links,roam:true,label:{show:true,position:'outside',fontSize:9,color:'#e6edf7'}}]});
+  }},
+
+  // 66. Hierarchical Edge Bundling
+  {t:'Hierarchical Edge Bundling', init:c=>{
+    const sample=nodes.slice(0,50);
+    const data=sample.map((n,i)=>{const ang=(i/50)*Math.PI*2;
+      return {id:n.id,name:n.id.slice(0,4),x:Math.cos(ang)*140,y:Math.sin(ang)*140,
+        symbolSize:5,itemStyle:{color:ACTORS[n.type]}};});
+    const links=[];
+    for(let i=0;i<80;i++) links.push({source:sample[rndi(0,50)].id,target:sample[rndi(0,50)].id,
+      lineStyle:{curveness:.6,width:.6,color:'#3a4a66',opacity:.5}});
+    c.setOption({...BASE,tooltip:TT,
+      xAxis:{type:'value',show:false,min:-200,max:200},
+      yAxis:{type:'value',show:false,min:-200,max:200},
+      series:[{type:'graph',layout:'none',data,links,roam:true,label:{show:false},
+        emphasis:{lineStyle:{width:2,color:'#00e5ff'}}}]});
+  }},
+
+  // 67. Arc Network
+  {t:'Arc Network Diagram', init:c=>{
+    const N=50, data=[], links=[];
+    for(let i=0;i<N;i++) data.push({id:'a'+i,name:nodes[i].id.slice(0,4),
+      x:i*14+20,y:150,symbolSize:5+nodes[i].degree/60,
+      itemStyle:{color:ACTORS[nodes[i].type]}});
+    for(let i=0;i<70;i++){const a=rndi(0,N),b=rndi(0,N);
+      if(a!==b)links.push({source:'a'+a,target:'a'+b,
+        lineStyle:{curveness:.6,width:.5,color:'#3a4a66'}});}
+    c.setOption({...BASE,tooltip:TT,
+      xAxis:{type:'value',show:false,min:0,max:750},
+      yAxis:{type:'value',show:false,min:0,max:300},
+      series:[{type:'graph',layout:'none',data,links,roam:true,label:{show:false}}]});
+  }},
+
+  // 68. Hive Plot
+  {t:'Hive Plot', init:c=>{
+    const axes=6, sample=nodes.slice(0,60);
+    const data=sample.map((n,i)=>{const axis=i%axes, ang=(axis/axes)*Math.PI*2-Math.PI/2;
+      const r=40+(n.risk/100)*100;
+      return {id:n.id,name:n.id.slice(0,4),x:Math.cos(ang)*r,y:Math.sin(ang)*r,
+        symbolSize:5+n.degree/40,itemStyle:{color:ACTORS[n.type]}};});
+    const links=[];
+    for(let i=0;i<40;i++) links.push({source:data[i].id,target:data[(i+11)%60].id,
+      lineStyle:{curveness:.3,width:.6,color:'#3a4a66'}});
+    c.setOption({...BASE,tooltip:TT,
+      xAxis:{type:'value',show:false,min:-200,max:200},
+      yAxis:{type:'value',show:false,min:-200,max:200},
+      series:[{type:'graph',layout:'none',data,links,roam:true,label:{show:false}}]});
+  }},
+
+  // 69. DAG
+  {t:'DAG Directed Acyclic', init:c=>{
+    const layers=6, per=8, data=[], links=[];
+    let id=0;
+    for(let l=0;l<layers;l++) for(let p=0;p<per;p++){
+      const n=nodes[id%1000];
+      data.push({id:'n'+id,name:n.id.slice(0,4),x:p*90+30,y:l*45+20,
+        symbolSize:6,itemStyle:{color:ACTORS[n.type]}});
+      id++;
+    }
+    for(let i=0;i<data.length-layers;i++){
+      if(Math.random()>.4) links.push({source:'n'+i,target:'n'+(i+rndi(1,per+1))});
+    }
+    c.setOption({...BASE,tooltip:TT,
+      xAxis:{type:'value',show:false,min:0,max:750},
+      yAxis:{type:'value',show:false,min:0,max:300},
+      series:[{type:'graph',layout:'none',data,links,roam:true,
+        lineStyle:{color:'#2a3a55',width:.7,curveness:.2},label:{show:false}}]});
+  }},
+
+  // 70. Matrix View
+  {t:'Adjacency Matrix', init:c=>{
+    const n=20, data=[];
+    const labels=Array.from({length:n},(_,i)=>'N'+i);
+    for(let i=0;i<n;i++) for(let j=0;j<n;j++)
+      data.push([i,j,Math.random()>.6?rndi(1,10):0]);
+    c.setOption({...BASE,tooltip:TT,grid:{left:'12%',right:'5%',top:'8%',bottom:'12%'},
+      xAxis:{type:'category',data:labels,axisLabel:{color:'#5e6d85',fontSize:7,rotate:45},axisLine:{lineStyle:{color:'#1a2740'}}},
+      yAxis:{type:'category',data:labels,axisLabel:{color:'#5e6d85',fontSize:7},axisLine:{lineStyle:{color:'#1a2740'}}},
+      visualMap:{min:0,max:10,show:false,
+        inRange:{color:['#0a1220','#00e5ff','#a55eea','#ff2e9a']}},
+      series:[{type:'heatmap',data,itemStyle:{borderColor:'#03060d',borderWidth:1}}]});
+  }},
+
+  // 71. Adjacency Heatmap
+  {t:'Adjacency Heatmap', init:c=>{
+    const n=30, data=[];
+    for(let i=0;i<n;i++) for(let j=0;j<n;j++)
+      data.push([i,j,Math.abs(Math.sin(i*j)*50)+rnd(0,50)]);
+    c.setOption({...BASE,tooltip:TT,grid:{left:'8%',right:'4%',top:'6%',bottom:'10%'},
+      xAxis:{type:'category',show:false},yAxis:{type:'category',show:false},
+      visualMap:{min:0,max:100,show:false,
+        inRange:{color:['#03060d','#2ed573','#ffd93d','#ff4757']}},
+      series:[{type:'heatmap',data,itemStyle:{borderColor:'#03060d',borderWidth:0}}]});
+  }},
+
+  // 72. Ego Network
+  {t:'Ego Network Focus', init:c=>{
+    const center=nodes[0], ring1=nodes.slice(1,20), ring2=nodes.slice(20,60);
+    const data=[{id:center.id,name:'EGO',symbolSize:26,
+      itemStyle:{color:'#ff2e9a',...glow('#ff2e9a',20)},
+      label:{show:true,fontSize:10,fontWeight:'bold',color:'#e6edf7'}}];
+    const links=[];
+    ring1.forEach(n=>{
+      data.push({id:n.id,name:n.id.slice(0,5),symbolSize:11,
+        itemStyle:{color:ACTORS[n.type]},
+        label:{show:true,position:'right',fontSize:8,color:'#7d8ba1'}});
+      links.push({source:center.id,target:n.id,lineStyle:{width:1.4,color:'#3a4a66'}});
+    });
+    ring2.forEach(n=>{
+      data.push({id:n.id,name:'',symbolSize:5,itemStyle:{color:ACTORS[n.type]}});
+      links.push({source:ring1[rndi(0,19)].id,target:n.id,
+        lineStyle:{width:.5,color:'#2a3a55'}});
+    });
+    c.setOption({...BASE,tooltip:TT,
+      series:[{type:'graph',layout:'force',roam:true,
+        force:{repulsion:80,edgeLength:[20,60],gravity:.15},
+        data,links,lineStyle:{curveness:.15,opacity:.6},
+        emphasis:{focus:'adjacency'}}]});
+  }},
+
+  // 73. Community Graph
+  {t:'Community Cluster Graph', init:c=>{
+    const centers=[[-180,-60],[180,-60],[-180,80],[180,80],[0,160],[0,-160]];
+    const data=[], links=[];
+    for(let i=0;i<90;i++){const cI=i%6, n=nodes[i];
+      data.push({id:n.id,name:n.id.slice(0,4),
+        x:centers[cI][0]+rnd(-30,30), y:centers[cI][1]+rnd(-30,30),
+        symbolSize:5+rnd(0,10), itemStyle:{color:ACTOR_ARR[cI]}});}
+    for(let i=0;i<120;i++){const a=rndi(0,90), b=rndi(0,90);
+      if(a!==b && Math.floor(a/15)===Math.floor(b/15))
+        links.push({source:data[a].id,target:data[b].id,
+          lineStyle:{color:ACTOR_ARR[Math.floor(a/15)],width:.7,opacity:.4}});}
+    c.setOption({...BASE,tooltip:TT,
+      xAxis:{type:'value',show:false,min:-250,max:250},
+      yAxis:{type:'value',show:false,min:-220,max:220},
+      series:[{type:'graph',layout:'none',data,links,roam:true,label:{show:false}}]});
+  }},
+
+  // 74. Multi-partite
+  {t:'Multi-partite Graph', init:c=>{
+    const layers=5, per=10, data=[], links=[];
+    for(let l=0;l<layers;l++) for(let p=0;p<per;p++){
+      const n=nodes[l*per+p];
+      data.push({id:'mp'+l+'_'+p,name:'',x:l*140+50,y:p*25+30,
+        symbolSize:6,itemStyle:{color:ACTOR_ARR[l]}});
+    }
+    for(let l=0;l<layers-1;l++) for(let p=0;p<per;p++) for(let k=0;k<2;k++){
+      links.push({source:'mp'+l+'_'+p,target:'mp'+(l+1)+'_'+rndi(0,per),
+        lineStyle:{color:'#3a4a66',width:.6,opacity:.5}});
+    }
+    c.setOption({...BASE,tooltip:TT,
+      xAxis:{type:'value',show:false,min:0,max:750},
+      yAxis:{type:'value',show:false,min:0,max:300},
+      series:[{type:'graph',layout:'none',data,links,roam:true,label:{show:false}}]});
+  }},
+
+  // 75. Temporal Network
+  {t:'Temporal Network', init:c=>{
+    const data=[], links=[];
+    for(let t=0;t<6;t++) for(let i=0;i<8;i++){const n=nodes[t*8+i];
+      data.push({id:'t'+t+'_'+i,name:'',x:t*110+40+rnd(-10,10),y:i*35+20+rnd(-8,8),
+        symbolSize:5+rnd(0,8),itemStyle:{color:ACTOR_ARR[i%12],opacity:.5+t/12}});}
+    for(let t=0;t<5;t++) for(let i=0;i<15;i++){
+      const a=t*8+rndi(0,8), b=(t+1)*8+rndi(0,8);
+      links.push({source:'t'+Math.floor(a/8)+'_'+(a%8),
+        target:'t'+Math.floor(b/8)+'_'+(b%8),
+        lineStyle:{color:'#3a4a66',width:.7,opacity:.5}});}
+    c.setOption({...BASE,tooltip:TT,
+      xAxis:{type:'value',show:false,min:0,max:750},
+      yAxis:{type:'value',show:false,min:0,max:300},
+      series:[{type:'graph',layout:'none',data,links,roam:true,label:{show:false}}]});
+  }},
+
+  // 76. 3D Force Graph
+  {t:'3D Force-Directed Graph', init:c=>{
+    const data=[], links=[];
+    for(let i=0;i<70;i++){const n=nodes[i];
+      data.push({name:n.id.slice(0,5),value:[rnd(-100,100),rnd(-100,100),rnd(-100,100)],
+        itemStyle:{color:ACTORS[n.type]},symbolSize:5+n.degree/50});}
+    for(let i=0;i<90;i++){const a=rndi(0,70), b=rndi(0,70);
+      if(a!==b) links.push({source:data[a].name,target:data[b].name});}
+    c.setOption({backgroundColor:'transparent',tooltip:TT,
+      xAxis3D:{type:'value',show:false},yAxis3D:{type:'value',show:false},zAxis3D:{type:'value',show:false},
+      grid3D:{show:false,boxWidth:200,boxDepth:200,boxHeight:200},
+      series:[{type:'graphGL',data,links,layout:'force',
+        force:{repulsion:60,edgeLength:30,gravity:3},
+        lineStyle:{color:'#2a3a55',opacity:.5,width:1},
+        viewControl:{autoRotate:true,autoRotateSpeed:5,distance:280}}]});
+  }},
+
+  // 77. Cluster Network
+  {t:'Clustered Network', init:c=>{
+    const data=[], links=[];
+    const clusters=[[-160,-70],[160,-70],[-160,70],[160,70]];
+    clusters.forEach((ct,ci)=>{
+      for(let i=0;i<20;i++){
+        const n=nodes[ci*20+i];
+        data.push({id:n.id,name:'',x:ct[0]+rnd(-40,40),y:ct[1]+rnd(-40,40),
+          symbolSize:6,itemStyle:{color:ACTOR_ARR[ci]}});
+      }
+    });
+    for(let i=0;i<60;i++){
+      const a=rndi(0,80), b=rndi(0,80);
+      if(a!==b) links.push({source:data[a].id,target:data[b].id,
+        lineStyle:{color:'#2a3a55',width:.5,opacity:.4}});
+    }
+    c.setOption({...BASE,tooltip:TT,
+      xAxis:{type:'value',show:false,min:-230,max:230},
+      yAxis:{type:'value',show:false,min:-130,max:130},
+      series:[{type:'graph',layout:'none',data,links,roam:true,label:{show:false}}]});
+  }},
+
+  // 78. Route Network
+  {t:'Route Network (Shipping)', init:c=>{
+    const pts=[[-74,40],[0,51],[116,40],[139,35],[-46,-23],[151,-33],[-99,19],[37,55]];
+    const data=pts.map((p,i)=>({id:'r'+i,name:'',x:p[0]*2.5,y:p[1]*2.5,
+      symbolSize:18,itemStyle:{color:ACTOR_ARR[i],...glow(ACTOR_ARR[i],12)}}));
+    const links=[];
+    for(let i=0;i<pts.length;i++) for(let j=i+1;j<pts.length;j++){
+      if(Math.random()>.6) links.push({source:'r'+i,target:'r'+j,
+        lineStyle:{color:ACTOR_ARR[i],width:rnd(.5,2),opacity:.5,curveness:.3}});
+    }
+    c.setOption({...BASE,tooltip:TT,
+      xAxis:{type:'value',show:false,min:-500,max:500},
+      yAxis:{type:'value',show:false,min:-250,max:250},
+      series:[{type:'graph',layout:'none',data,links,roam:true,label:{show:false}}]});
+  }},
+
+  // 79. Bipartite
+  {t:'Bipartite Graph', init:c=>{
+    const left=nodes.slice(0,15), right=nodes.slice(15,30);
+    const data=[], links=[];
+    left.forEach((n,i)=>{data.push({id:'L'+i,name:n.id.slice(0,4),
+      x:-80,y:i*22-160,symbolSize:8,itemStyle:{color:ACTORS[n.type]}});});
+    right.forEach((n,i)=>{data.push({id:'R'+i,name:n.id.slice(0,4),
+      x:80,y:i*22-160,symbolSize:8,itemStyle:{color:ACTORS[n.type]}});});
+    for(let i=0;i<30;i++) links.push({source:'L'+rndi(0,15),target:'R'+rndi(0,15),
+      lineStyle:{color:'#3a4a66',width:.8,opacity:.5}});
+    c.setOption({...BASE,tooltip:TT,
+      xAxis:{type:'value',show:false,min:-150,max:150},
+      yAxis:{type:'value',show:false,min:-180,max:180},
+      series:[{type:'graph',layout:'none',data,links,roam:true,
+        label:{show:true,fontSize:7,color:'#e6edf7'}}]});
+  }},
+
+  // 80. Multi-layer Network
+  {t:'Multi-Layer Network', init:c=>{
+    const layers=4, data=[], links=[];
+    for(let l=0;l<layers;l++){
+      for(let i=0;i<15;i++){
+        const n=nodes[l*15+i];
+        data.push({id:'ml'+l+'_'+i,name:'',x:l*180-270,y:i*18-130,
+          symbolSize:6,itemStyle:{color:ACTOR_ARR[l*3]}});
+      }
+    }
+    for(let l=0;l<layers;l++) for(let i=0;i<20;i++){
+      links.push({source:'ml'+l+'_'+rndi(0,15),target:'ml'+l+'_'+rndi(0,15),
+        lineStyle:{color:ACTOR_ARR[l*3],width:.6,opacity:.5}});
+    }
+    for(let l=0;l<layers-1;l++) for(let i=0;i<5;i++){
+      links.push({source:'ml'+l+'_'+rndi(0,15),target:'ml'+(l+1)+'_'+rndi(0,15),
+        lineStyle:{color:'#ff2e9a',width:.8,opacity:.6}});
+    }
+    c.setOption({...BASE,tooltip:TT,
+      xAxis:{type:'value',show:false,min:-350,max:350},
+      yAxis:{type:'value',show:false,min:-180,max:180},
+      series:[{type:'graph',layout:'none',data,links,roam:true,label:{show:false}}]});
+  }}
+];
+
+/* ============================================================
+   7. CATEGORY E — DYNAMIC (81-90)
+   ============================================================ */
+const DYNAMIC_CHARTS = [
+  // 81. Live Transaction Stream
+  {t:'Live Transaction Stream', dynamic:true, init:c=>{
+    const N=40;
+    c._stream = Array.from({length:N},(_,i)=>({value:[i,rnd(0,100)]}));
+    c.setOption({...BASE,tooltip:TT,grid:{left:'8%',right:'5%',top:'8%',bottom:'8%'},
+      xAxis:{...AX,type:'value',min:0,max:N},
+      yAxis:{...AX,type:'value',min:0,max:100},
+      series:[{type:'effectScatter',data:c._stream,
+        symbolSize:d=>6+d.value[1]/12,rippleEffect:{scale:2,brushType:'stroke'},
+        itemStyle:{color:p=>ACTOR_ARR[Math.floor(p.value[1])%12]}}]});
+  }},
+
+  // 82. Animated Particle Flow
+  {t:'Animated Particle Flow', dynamic:true, init:c=>{
+    c._t=0;
+    const particles=Array.from({length:40},()=>({
+      x:rnd(0,100), y:rnd(0,100), vx:rnd(-1,1), vy:rnd(-1,1)
+    }));
+    c._particles=particles;
+    c.setOption({...BASE,tooltip:TT,grid:{left:0,right:0,top:0,bottom:0},
+      xAxis:{type:'value',show:false,min:0,max:100},
+      yAxis:{type:'value',show:false,min:0,max:100},
+      series:[{type:'scatter',data:particles.map(p=>({value:[p.x,p.y]})),
+        symbolSize:6,itemStyle:{color:'#00e5ff',...glow('#00e5ff',12)}}]});
+  }},
+
+  // 83. Mempool Visualizer
+  {t:'Mempool Visualizer', dynamic:true, init:c=>{
+    c._mem=Array.from({length:20},()=>rnd(20,100));
+    c.setOption({...BASE,tooltip:TT,grid:{left:'5%',right:'5%',top:'8%',bottom:'8%'},
+      xAxis:{...AX,type:'category',data:Array.from({length:20},(_,i)=>'B'+(i+1)),
+        axisLabel:{color:'#5e6d85',fontSize:8}},
+      yAxis:{...AX,type:'value',max:120},
+      series:[{type:'bar',data:c._mem.map(v=>({value:v,
+        itemStyle:{color:v>80?'#ff4757':v>50?'#ffa502':'#2ed573'}})),
+        barWidth:'60%',itemStyle:{borderRadius:[4,4,0,0]}}]});
+  }},
+
+  // 84. Block Mining Animation
+  {t:'Block Mining Animation', dynamic:true, init:c=>{
+    c._mines=Array.from({length:12},()=>rnd(0,100));
+    c.setOption({...BASE,tooltip:TT,
+      series:[{type:'gauge',center:['50%','55%'],radius:'75%',
+        startAngle:180,endAngle:0,min:0,max:100,splitNumber:5,
+        axisLine:{lineStyle:{width:12,color:[[.3,'#2ed573'],[.7,'#ffa502'],[1,'#ff4757']]}},
+        axisLabel:{color:'#5e6d85',fontSize:8},
+        axisTick:{lineStyle:{color:'#1a2740'}},
+        splitLine:{lineStyle:{color:'#1a2740'}},
+        pointer:{itemStyle:{color:'#00e5ff'}},
+        detail:{formatter:'{value}%',color:'#e6edf7',fontSize:14},
+        data:[{value:c._mines[0],name:'Hash'}]}]});
+  }},
+
+  // 85. Chain Reorganization
+  {t:'Chain Reorganization', dynamic:true, init:c=>{
+    c._chain=Array.from({length:30},(_,i)=>i);
+    c._reorg=0;
+    c.setOption({...BASE,tooltip:TT,grid:{left:'5%',right:'5%',top:'10%',bottom:'10%'},
+      xAxis:{...AX,type:'value',min:0,max:30},
+      yAxis:{...AX,type:'value',min:-2,max:2},
+      series:[
+        {type:'line',data:c._chain.map(i=>[i,0]),symbol:'circle',symbolSize:8,
+          lineStyle:{color:'#2ed573',width:2},
+          itemStyle:{color:'#2ed573',...glow('#2ed573',8)}},
+        {type:'line',data:c._chain.map(i=>[i,1]),symbol:'circle',symbolSize:6,
+          lineStyle:{color:'#ff4757',width:1.5},
+          itemStyle:{color:'#ff4757',opacity:.7}}
+      ]});
+  }},
+
+  // 86. Real-time Risk Radar
+  {t:'Real-time Risk Radar', dynamic:true, init:c=>{
+    c._radar=RADAR_IND.map(()=>rnd(20,90));
+    c.setOption({...BASE,tooltip:TT,
+      radar:{indicator:RADAR_IND,center:['50%','52%'],radius:'68%',
+        axisName:{color:'#7d8ba1',fontSize:9},
+        splitLine:{lineStyle:{color:'#1a2740'}},
+        splitArea:{areaStyle:{color:['transparent']}},
+        axisLine:{lineStyle:{color:'#1a2740'}}},
+      series:[{type:'radar',data:[{name:'Live',
+        value:c._radar.map(v=>v.toFixed(0)),
+        areaStyle:{color:'rgba(255,46,154,.3)'},
+        lineStyle:{color:'#ff2e9a',width:2},
+        itemStyle:{color:'#ff2e9a'}}]}]});
+  }},
+
+  // 87. Live Whale Tracker
+  {t:'Live Whale Tracker', dynamic:true, init:c=>{
+    c._whales=Array.from({length:8},(_,i)=>({name:'W'+(i+1),value:rnd(20,100)}));
+    c.setOption({...BASE,tooltip:TT,grid:{left:'15%',right:'8%',top:'8%',bottom:'8%'},
+      xAxis:{...AX,type:'value',max:100},
+      yAxis:{...AX,type:'category',data:c._whales.map(w=>w.name)},
+      series:[{type:'bar',data:c._whales.map((w,i)=>({value:w.value,
+        itemStyle:{color:ACTOR_ARR[i],borderRadius:[0,4,4,0]}})),
+        barWidth:'55%'}]});
+  }},
+
+  // 88. Streaming Heatmap
+  {t:'Streaming Heatmap', dynamic:true, init:c=>{
+    c._heat=Array.from({length:200},()=>rnd(0,100));
+    c._row=0;
+    const data=[];
+    for(let x=0;x<20;x++) for(let y=0;y<10;y++)
+      data.push([x,y,rnd(0,100)]);
+    c.setOption({...BASE,tooltip:TT,grid:{left:'2%',right:'2%',top:'2%',bottom:'2%'},
+      xAxis:{type:'category',show:false},
+      yAxis:{type:'category',show:false},
+      visualMap:{min:0,max:100,show:false,
+        inRange:{color:['#03060d','#00e5ff','#a55eea','#ff2e9a']}},
+      series:[{type:'heatmap',data,itemStyle:{borderColor:'#03060d',borderWidth:1}}]});
+  }},
+
+  // 89. Animated Sankey
+  {t:'Animated Sankey Flow', dynamic:true, init:c=>{
+    const ns=[...CATS.slice(0,4),...CATS.slice(4,8)].map(t=>({
+      name:t,itemStyle:{color:ACTORS[t]}}));
+    c._sankeyLinks=[];
+    CATS.slice(0,4).forEach(a=>CATS.slice(4,8).forEach(b=>{
+      c._sankeyLinks.push({source:a,target:b,value:rndi(20,150)});
+    }));
+    c.setOption({...BASE,tooltip:TT,
+      series:[{type:'sankey',top:'3%',bottom:'3%',left:'4%',right:'12%',
+        nodeWidth:12,nodeGap:8,data:ns,links:c._sankeyLinks,
+        label:{color:'#e6edf7',fontSize:9},
+        lineStyle:{color:'gradient',opacity:.4,curveness:.5}}]});
+  }},
+
+  // 90. Live Globe
+  {t:'Live 3D Globe Stream', dynamic:true, init:c=>{
+    c._globePts=Array.from({length:120},()=>[rnd(-180,180),rnd(-70,80),rnd(0,50000)]);
+    c.setOption({backgroundColor:'transparent',
+      globe:{baseTexture:'https://cdn.jsdelivr.net/npm/echarts-gl@2.0.9/asset/globe/world.topo.bathy.200401.jpg',
+        heightTexture:'https://cdn.jsdelivr.net/npm/echarts-gl@2.0.9/asset/globe/bathymetry_bw_composite_4k.jpg',
+        shading:'realistic',environment:'auto',
+        light:{ambient:{intensity:1.1},main:{intensity:1.3}},
+        viewControl:{autoRotate:true,autoRotateSpeed:6,distance:200},
+        globeRadius:65,atmosphere:{show:true,color:'#00e5ff',glowPower:3}},
+      series:[{type:'scatter3D',coordinateSystem:'globe',
+        data:c._globePts,symbolSize:4,
+        itemStyle:{color:'#00e5ff',opacity:.9},blendMode:'lighter'}]});
+  }}
+];
+
+/* ============================================================
+   8. CATEGORY F — SPECIALIZED (91-100)
+   ============================================================ */
+const SPEC_CHARTS = [
+  // 91. Candlestick
+  {t:'Candlestick + Volume', init:c=>c.setOption({...BASE,tooltip:TTX,grid:GRID,
+    xAxis:{...AX,type:'category',data:OHLC.map(d=>d[0])},
+    yAxis:{...AX,type:'value',scale:true},
+    series:[{type:'candlestick',data:OHLC.map(d=>[d[1],d[2],d[3],d[4]]),
+      itemStyle:{color:'#2ed573',color0:'#ff4757',borderColor:'#2ed573',borderColor0:'#ff4757'}}]})},
+
+  // 92. OHLC + MA
+  {t:'OHLC + Moving Average', init:c=>{
+    const ma=OHLC.map((_,i)=>{
+      const s=Math.max(0,i-10);
+      return OHLC.slice(s,i+1).reduce((a,d)=>a+d[2],0)/(i-s+1);
+    });
+    c.setOption({...BASE,tooltip:TTX,grid:GRID,
+      xAxis:{...AX,type:'category',data:OHLC.map(d=>d[0])},
+      yAxis:{...AX,type:'value',scale:true},
+      series:[
+        {type:'candlestick',data:OHLC.map(d=>[d[1],d[2],d[3],d[4]]),
+          itemStyle:{color:'#2ed573',color0:'#ff4757',borderColor:'#2ed573',borderColor0:'#ff4757'}},
+        {type:'line',data:ma.map(v=>+v.toFixed(0)),smooth:true,symbol:'none',
+          lineStyle:{color:'#ffd93d',width:1.5,opacity:.85}}
+      ]});
+  }},
+
+  // 93. Volume Profile
+  {t:'Volume Profile', init:c=>{
+    const data=Array.from({length:30},()=>rnd(0,100));
+    c.setOption({...BASE,tooltip:TT,grid:GRID,
+      xAxis:{...AX,type:'value'},
+      yAxis:{...AX,type:'category',data:Array.from({length:30},(_,i)=>i*1000+30000)},
+      series:[{type:'bar',data:data.map(v=>({value:v,
+        itemStyle:{color:v>70?'#ff2e9a':v>40?'#00e5ff':'#2ed573',opacity:.85}})),
+        barWidth:'80%'}]});
+  }},
+
+  // 94. Depth Chart
+  {t:'Order Book Depth Chart', init:c=>{
+    const bids=Array.from({length:40},(_,i)=>({x:30000-i*10,y:rnd(0,500)}));
+    const asks=Array.from({length:40},(_,i)=>({x:30000+i*10,y:rnd(0,500)}));
+    let cum=0;
+    const bidLine=bids.map(b=>{cum+=b.y; return [b.x,cum];}).reverse();
+    cum=0;
+    const askLine=asks.map(a=>{cum+=a.y; return [a.x,cum];});
+    c.setOption({...BASE,tooltip:TT,grid:GRID,
+      xAxis:{...AX,type:'value',name:'Price',scale:true},
+      yAxis:{...AX,type:'value',name:'Cumulative'},
+      series:[
+        {type:'line',data:bidLine,smooth:true,symbol:'none',
+          lineStyle:{color:'#2ed573',width:1.5},
+          areaStyle:{color:'rgba(46,213,115,.25)'}},
+        {type:'line',data:askLine,smooth:true,symbol:'none',
+          lineStyle:{color:'#ff4757',width:1.5},
+          areaStyle:{color:'rgba(255,71,87,.25)'}}
+      ]});
+  }},
+
+  // 95. Order Book Heatmap
+  {t:'Order Book Heatmap', init:c=>{
+    const data=[];
+    for(let x=0;x<50;x++) for(let y=0;y<20;y++)
+      data.push([x,y,Math.abs(Math.sin(x/3)*Math.cos(y/4))*80+rnd(0,20)]);
+    c.setOption({...BASE,tooltip:TT,grid:{left:'5%',right:'5%',top:'5%',bottom:'5%'},
+      xAxis:{type:'category',show:false},
+      yAxis:{type:'category',show:false},
+      visualMap:{min:0,max:100,show:false,
+        inRange:{color:['#03060d','#0a2a4a','#00e5ff','#ff2e9a']}},
+      series:[{type:'heatmap',data,itemStyle:{borderColor:'transparent',borderWidth:0}}]});
+  }},
+
+  // 96. Liquidation Heatmap
+  {t:'Liquidation Heatmap', init:c=>{
+    const data=[];
+    for(let x=0;x<30;x++) for(let y=0;y<20;y++){
+      const lev=Math.abs((y-10)/10)*100;
+      data.push([x,y,lev*(1+Math.sin(x/3)*.5)]);
+    }
+    c.setOption({...BASE,tooltip:TT,grid:{left:0,right:0,top:0,bottom:0},
+      xAxis:{type:'category',show:false},
+      yAxis:{type:'category',show:false},
+      visualMap:{min:0,max:100,show:false,
+        inRange:{color:['#03060d','#2ed573','#ffd93d','#ff4757','#ff2e9a']}},
+      series:[{type:'heatmap',data,itemStyle:{borderColor:'transparent',borderWidth:0}}]});
+  }},
+
+  // 97. Funding Rate Line
+  {t:'Funding Rate Line', init:c=>{
+    const data=TL.map(()=>rnd(-0.05,0.05));
+    c.setOption({...BASE,tooltip:TTX,grid:GRID,
+      xAxis:{...AX,type:'category',data:TL},
+      yAxis:{...AX,type:'value'},
+      series:[{type:'line',data:data.map(v=>+(v*100).toFixed(3)),smooth:true,showSymbol:false,
+        lineStyle:{width:1.5,color:'#00e5ff'},
+        areaStyle:{color:'rgba(0,229,255,.15)'},
+        markLine:{silent:true,symbol:'none',
+          lineStyle:{color:'#ff4757',type:'dashed'},
+          data:[{yAxis:0}]}}]});
+  }},
+
+  // 98. Open Interest Area
+  {t:'Open Interest Area', init:c=>{
+    const oi=TL.map((_,i)=>500+Math.sin(i/10)*200+Math.random()*100);
+    const price=TL.map((_,i)=>30000+Math.sin(i/8)*8000);
+    c.setOption({...BASE,tooltip:TTX,grid:GRID,
+      xAxis:{...AX,type:'category',data:TL},
+      yAxis:[{...AX,type:'value',name:'OI'},
+        {...AX,type:'value',name:'Price',splitLine:{show:false}}],
+      series:[
+        {type:'line',data:oi.map(v=>+v.toFixed(0)),smooth:true,showSymbol:false,
+          lineStyle:{width:1.5,color:'#a55eea'},
+          areaStyle:{color:'rgba(165,94,234,.25)'}},
+        {type:'line',yAxisIndex:1,data:price,smooth:true,showSymbol:false,
+          lineStyle:{width:1.5,color:'#ffd93d'}}
+      ]});
+  }},
+
+  // 99. Hash Rate Ribbon
+  {t:'Hash Rate Ribbon', init:c=>{
+    const series = Array.from({length:5},(_,i)=>({
+      type:'line',smooth:true,showSymbol:false,stack:'h',
+      data:TL.map((_,k)=>Math.abs(Math.sin((k+i*7)/15))*40),
+      lineStyle:{width:0},areaStyle:{opacity:.75,color:ACTOR_ARR[i*2]}
+    }));
+    c.setOption({...BASE,tooltip:TTX,grid:{left:'3%',right:'3%',top:'5%',bottom:'5%'},
+      xAxis:{...AX,type:'category',data:TL,show:false},
+      yAxis:{...AX,type:'value',show:false},series});
+  }},
+
+  // 100. Difficulty Ribbon
+  {t:'Difficulty Ribbon', init:c=>{
+    const series = Array.from({length:7},(_,i)=>({
+      type:'line',smooth:true,showSymbol:false,
+      data:TL.map((_,k)=>50+Math.sin((k+i*5)/12)*25),
+      lineStyle:{width:1.5,color:ACTOR_ARR[i],opacity:.85}
+    }));
+    c.setOption({...BASE,tooltip:TTX,grid:GRID,
+      xAxis:{...AX,type:'category',data:TL},
+      yAxis:{...AX,type:'value'},series});
+  }}
+];
+
+/* ============================================================
+   9. COMBINE & RENDER
+   ============================================================ */
+const CAT_MAP = {
+  LINE:LINE_CHARTS, POINT:POINT_CHARTS, AREA:AREA_CHARTS,
+  NETWORK:NETWORK_CHARTS, DYNAMIC:DYNAMIC_CHARTS, SPEC:SPEC_CHARTS
+};
+const CAT_TITLE = {
+  LINE:'📈 Category A — LINE / TRACE / CHAIN', POINT:'🔵 Category B — POINT / NODE',
+  AREA:'🟦 Category C — AREA / REGION', NETWORK:'🕸️ Category D — NETWORK / GRAPH',
+  DYNAMIC:'⚡ Category E — DYNAMIC / LIVE', SPEC:'🎯 Category F — SPECIALIZED'
+};
+
+const app = document.getElementById('app');
+const allCharts = [];
+let chartId = 0;
+
+Object.keys(CAT_MAP).forEach(catKey=>{
+  const arr = CAT_MAP[catKey];
+  if(!arr || !arr.length) return;
+  const sec = document.createElement('div');
+  sec.className = 'section-title';
+  sec.dataset.cat = catKey;
+  sec.innerHTML = `${CAT_TITLE[catKey]} <span class="badge">${arr.length} MODELS</span>`;
+  app.appendChild(sec);
+
+  const grid = document.createElement('div');
+  grid.className = 'grid';
+  arr.forEach(ch=>{
+    chartId++;
+    const dyn = ch.dynamic ? ' dynamic' : '';
+    const card = document.createElement('div');
+    card.className = 'card' + dyn;
+    card.dataset.cat = catKey;
+    card.innerHTML = `
+      <div class="head">
+        <span class="num">${String(chartId).padStart(3,'0')}</span>
+        <span class="title">${ch.t}</span>
+        <span class="cat">${catKey}</span>
+      </div>
+      <div class="chart" id="chart-${chartId}"></div>`;
+    grid.appendChild(card);
+    ch._id = chartId;
+    ch._cat = catKey;
+    allCharts.push(ch);
+  });
+  app.appendChild(grid);
+});
+
+/* ============================================================
+   10. LAZY RENDER + LIVE ANIMATION
+   ============================================================ */
+const instances = new Map();
+const dynamicInstances = [];
+
+function renderChart(ch){
+  const el = document.getElementById('chart-'+ch._id);
+  if(!el || instances.has(ch._id)) return;
+  const inst = echarts.init(el, null, {renderer:'canvas'});
+  try{ ch.init(inst); }catch(e){ console.warn('Chart '+ch._id+' ('+ch.t+'):',e); }
+  instances.set(ch._id, inst);
+  if(ch.dynamic) dynamicInstances.push({inst, chart:ch});
+}
+
+// IntersectionObserver for lazy render
+const observer = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const chart = allCharts.find(c=>document.getElementById('chart-'+c._id)===e.target);
+      if(chart) renderChart(chart);
+    }
+  });
+},{rootMargin:'200px'});
+
+// observe all chart elements
+window.addEventListener('load',()=>{
+  allCharts.forEach(ch=>{
+    const el = document.getElementById('chart-'+ch._id);
+    if(el) observer.observe(el);
+  });
+});
+
+// resize handler
+window.addEventListener('resize',()=>{
+  instances.forEach(i=>i.resize());
+});
+
+/* ============================================================
+   11. DYNAMIC ANIMATION LOOP (10 charts)
+   ============================================================ */
+let animating = true;
+let tick = 0;
+
+setInterval(()=>{
+  if(!animating) return;
+  tick++;
+
+  // Live TX counter in header
+  document.getElementById('live-tx').textContent = rndi(800,2500);
+
+  dynamicInstances.forEach(({inst, chart})=>{
+    try{
+      switch(chart._id){
+        case 81: // Live stream scatter
+          chart._stream = chart._stream.map((p,i)=>({value:[i,rnd(0,100)]}));
+          inst.setOption({series:[{data:chart._stream}]});
+          break;
+        case 82: // Particle flow
+          chart._particles = chart._particles.map(p=>{
+            let x=p.x+p.vx*2, y=p.y+p.vy*2;
+            if(x<0||x>100)p.vx*=-1;
+            if(y<0||y>100)p.vy*=-1;
+            return {...p,x:Math.max(0,Math.min(100,x)),y:Math.max(0,Math.min(100,y))};
+          });
+          inst.setOption({series:[{data:chart._particles.map(p=>({value:[p.x,p.y]}))}]});
+          break;
+        case 83: // Mempool
+          chart._mem = chart._mem.map(v=>Math.max(10,Math.min(120,v+rnd(-15,15))));
+          inst.setOption({series:[{data:chart._mem.map(v=>({value:v,
+            itemStyle:{color:v>80?'#ff4757':v>50?'#ffa502':'#2ed573'}}))}]});
+          break;
+        case 84: // Mining gauge
+          inst.setOption({series:[{data:[{value:rnd(20,100),name:'Hash'}]}]});
+          break;
+        case 85: // Reorg
+          chart._reorg = (chart._reorg+1)%3;
+          break;
+        case 86: // Risk radar
+          chart._radar = chart._radar.map(v=>Math.max(15,Math.min(95,v+rnd(-10,10))));
+          inst.setOption({series:[{data:[{name:'Live',
+            value:chart._radar.map(v=>v.toFixed(0)),
+            areaStyle:{color:'rgba(255,46,154,.3)'},
+            lineStyle:{color:'#ff2e9a',width:2},
+            itemStyle:{color:'#ff2e9a'}}]}]});
+          break;
+        case 87: // Whale tracker
+          chart._whales = chart._whales.map(w=>({...w,value:Math.max(5,Math.min(100,w.value+rnd(-15,15)))}));
+          inst.setOption({series:[{data:chart._whales.map((w,i)=>({value:w.value,
+            itemStyle:{color:ACTOR_ARR[i],borderRadius:[0,4,4,0]}}))}]});
+          break;
+        case 88: // Streaming heatmap
+          {
+            const newData=[];
+            for(let x=0;x<20;x++) for(let y=0;y<10;y++)
+              newData.push([x,y,rnd(0,100)]);
+            inst.setOption({series:[{data:newData}]});
+          }
+          break;
+        case 89: // Animated sankey
+          chart._sankeyLinks = chart._sankeyLinks.map(l=>({...l,value:rndi(20,150)}));
+          inst.setOption({series:[{links:chart._sankeyLinks}]});
+          break;
+        case 90: // Live globe
+          chart._globePts = Array.from({length:120},()=>[rnd(-180,180),rnd(-70,80),rnd(0,50000)]);
+          inst.setOption({series:[{data:chart._globePts}]});
+          break;
+      }
+    }catch(e){}
+  });
+},1400);
+
+/* ============================================================
+   12. TOOLBAR
+   ============================================================ */
+document.querySelectorAll('#toolbar button[data-filter]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('#toolbar button[data-filter]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const f = btn.dataset.filter;
+    document.querySelectorAll('.section-title').forEach(sec=>{
+      sec.style.display = (f==='all'||sec.dataset.cat===f) ? '' : 'none';
+    });
+    document.querySelectorAll('.grid').forEach(g=>{
+      const firstCard = g.querySelector('.card');
+      g.style.display = (f==='all'||(firstCard && firstCard.dataset.cat===f)) ? '' : 'none';
+    });
+    // trigger resize to redraw visible charts
+    setTimeout(()=>instances.forEach(i=>i.resize()),100);
+  });
+});
+
+document.getElementById('toggle-anim').addEventListener('click',function(){
+  animating = !animating;
+  this.textContent = animating ? '⏸ Pause Animation' : '▶ Resume Animation';
+  this.classList.toggle('active', animating);
+});
+
+console.log('%c⚡ ChainTrace Pro loaded — '+allCharts.length+' visualizations','color:#00e5ff;font-size:14px;font-weight:bold');
+console.log('%cDynamic charts: '+dynamicInstances.length,'color:#ff2e9a');
+</script>
+</body>
+</html>
